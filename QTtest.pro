@@ -1,5 +1,5 @@
 QT       += core gui
-
+QT += vsoa
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++11
@@ -13,6 +13,7 @@ SOURCES += \
     mainwindow.cpp
 
 HEADERS += \
+    client_rpc.h \
     mainwindow.h
 
 FORMS += \
