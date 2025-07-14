@@ -37,18 +37,17 @@ void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QV
 
 void lightCall(QVsoaClient *client)//连接成功后，响应，发起调用
 {
-    qDebug() << "1111";
-
-
-    auto invoker = new QVsoaClientRPCInvoker(client, "ledpwm/set", RPCMethod::SET);//创建请求信息
-    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    auto invoker = new QVsoaClientRPCInvoker(client, "/ledpwm/set", RPCMethod::SET);//创建请求信息
     QVariantMap param = {
-                {"color",  "FF0000" },
-                {"brightness", "80"}
+                {"color","07e000" },
+                {"brightness",80}
             };
-    QByteArray jsonData = QJsonDocument::fromVariant(param).toJson();
-    QVsoaPayload payload(jsonData, {});
+
+    QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+
     invoker->call(payload);//用于发送信息到服务端，其中QVsoaPayload{}可以用于装json信息
+
 }
 
 #endif // CLIENT_RPC_H
