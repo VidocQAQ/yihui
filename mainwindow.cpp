@@ -70,7 +70,7 @@ void MainWindow::toggleLamp(QLabel *lamp)
 
 void MainWindow::cleartext(){
     count++;
-    if(count==1){
+    if(count==3){
       ui->textDisplay->clear();
       count=0;
     }
