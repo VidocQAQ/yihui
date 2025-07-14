@@ -21,12 +21,12 @@ int main(int argc, char *argv[])
         //把连接、断开连接等与相关响应处理函数关联
         QObject::connect(&client, &QVsoaClient::connected, onConnected);
         QObject::connect(&client, &QVsoaClient::disconnected, onDisconnected);
-        QObject::connect(&client, &QVsoaClient::connected, std::bind(lightCall, &client, _1, _2));
+        QObject::connect(&client, &QVsoaClient::connected, std::bind(lightCall, &client));
         //添加额外功能
 
 
         // 把客户端与服务端连接起来
-        client.connect2server("vsoa://iotserver:5600", SERVER_PASSWORD);
+        client.connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
         // 设置的自动连接
         client.autoConnect(1000, 500);
 

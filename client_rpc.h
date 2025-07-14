@@ -35,11 +35,11 @@ void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QV
     invoker->deleteLater();
 }
 
-void lightCall(QVsoaClient *client, bool ok, QString)//连接成功后，响应，发起调用
+void lightCall(QVsoaClient *client)//连接成功后，响应，发起调用
 {
-    if (!ok) {
-        return;
-    }
+    qDebug() << "1111";
+
+
     auto invoker = new QVsoaClientRPCInvoker(client, "ledpwm/set", RPCMethod::SET);//创建请求信息
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     QVariantMap param = {
