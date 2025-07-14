@@ -1,0 +1,52 @@
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
+
+#include <QWidget>
+#include <QLabel>
+
+namespace Ui {
+class MainWindow;
+}
+
+class MainWindow : public QWidget
+{
+    Q_OBJECT
+
+public:
+    explicit MainWindow(QWidget *parent = nullptr);
+    ~MainWindow();
+
+private slots:
+    void cleartext();
+    void on_btnRed_clicked();
+    void on_btnYellow_clicked();
+    void on_btnGreen_clicked();
+    void on_btnBlue_clicked();
+    void on_btnBrightnessSensor_clicked();
+    void on_btnUltrasonic_clicked();
+    void on_btnDht11_clicked();
+    void on_btnBuzzerOn_clicked();
+    void on_btnBuzzerOff_clicked();
+    void on_btnMotorOn_clicked();
+    void on_btnMotorOff_clicked();
+    void on_btnPwmRainbow_clicked();
+    void on_btnPwmLightshow_clicked();
+    void on_dialAdjust_valueChanged(int value);
+
+    void on_textDisplay_copyAvailable(bool b);
+
+    void on_dialAdjust_actionTriggered(int action);
+
+    void on_lampRed_linkActivated(const QString &link);
+
+private:
+    Ui::MainWindow *ui;
+
+    // 初始化灯的状态
+    void initLamps();
+
+    // 切换灯状态
+    void toggleLamp(QLabel *lamp);
+};
+
+#endif // MAINWINDOW_H
