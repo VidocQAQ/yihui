@@ -48,8 +48,9 @@ void MainWindow::initLamps()
 
     for (int i = 0; i < lamps.size(); i++) {
         QLabel *lamp = lamps[i];
-        lamp->setProperty("on", true);
+        lamp->setProperty("on", false);
         lamp->setProperty("originalColor", colors[i].name());
+        lamp->setStyleSheet("background-color: #808080; border-radius: 15px;");
     }
 }
 
@@ -174,12 +175,6 @@ void MainWindow::on_textDisplay_copyAvailable(bool b)
 
 
 void MainWindow::on_dialAdjust_actionTriggered(int action)
-{
-
-}
-
-
-void MainWindow::on_lampRed_linkActivated(const QString &link)
 {
 
 }
