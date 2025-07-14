@@ -37,7 +37,7 @@ private slots:
 
     void on_dialAdjust_actionTriggered(int action);
 
-    void on_lampRed_linkActivated(const QString &link);
+    //void on_lampRed_linkActivated(const QString &link);
 
 private:
     Ui::MainWindow *ui;
