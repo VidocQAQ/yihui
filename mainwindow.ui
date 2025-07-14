@@ -1,0 +1,634 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>MainWindow</class>
+ <widget class="QWidget" name="MainWindow">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>700</width>
+    <height>650</height>
+   </rect>
+  </property>
+  <property name="minimumSize">
+   <size>
+    <width>700</width>
+    <height>650</height>
+   </size>
+  </property>
+  <property name="windowTitle">
+   <string>弹性数字平台控制面板</string>
+  </property>
+  <property name="styleSheet">
+   <string notr="true">/* 主窗口样式 */
+QWidget {
+    background-color: #0d1b2a;
+    color: #e0e1dd;
+    font-family: 'Segoe UI', Arial, sans-serif;
+}
+
+/* 标题样式 */
+QLabel#titleLabel {
+    font-size: 24px;
+    font-weight: bold;
+    color: #778da9;
+    padding: 10px;
+    background-color: rgba(13, 27, 42, 0.8);
+    border-bottom: 2px solid #415a77;
+}
+
+/* 分组框样式 */
+QGroupBox {
+    border: 1px solid #415a77;
+    border-radius: 8px;
+    margin-top: 20px;
+    padding-top: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #a3b8cc;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top center;
+    padding: 0 10px;
+    background-color: #1b263b;
+    color: #e0e1dd;
+    border-radius: 4px;
+}
+
+/* 按钮通用样式 */
+QPushButton {
+    background-color: #1b263b;
+    border: 1px solid #415a77;
+    border-radius: 6px;
+    color: #e0e1dd;
+    padding: 8px 12px;
+    font-weight: 500;
+    min-height: 30px;
+    transition: all 0.3s;
+}
+
+QPushButton:hover {
+    background-color: #415a77;
+    border-color: #778da9;
+}
+
+QPushButton:pressed {
+    background-color: #0d1b2a;
+    border-color: #e0e1dd;
+}
+
+/* 传感器按钮特殊样式 */
+#btnBrightnessSensor, #btnUltrasonic, #btnDht11 {
+    background-color: rgba(65, 90, 119, 0.5);
+    font-weight: bold;
+}
+
+/* 灯光控制按钮 */
+#btnRed { background-color: rgba(230, 57, 70, 0.3); }
+#btnYellow { background-color: rgba(255, 184, 28, 0.3); }
+#btnGreen { background-color: rgba(56, 176, 0, 0.3); }
+#btnBlue { background-color: rgba(0, 150, 255, 0.3); }
+
+#btnRed:hover { background-color: rgba(230, 57, 70, 0.6); }
+#btnYellow:hover { background-color: rgba(255, 184, 28, 0.6); }
+#btnGreen:hover { background-color: rgba(56, 176, 0, 0.6); }
+#btnBlue:hover { background-color: rgba(0, 150, 255, 0.6); }
+
+/* PWM按钮样式 */
+#btnPwmRainbow, #btnPwmLightshow {
+    background-color: rgba(119, 141, 169, 0.4);
+    font-weight: bold;
+}
+
+/* 文本显示区域 */
+QTextEdit {
+    background-color: #0d1b2a;
+    border: 1px solid #415a77;
+    border-radius: 6px;
+    color: #e0e1dd;
+    font-family: 'Consolas', 'Courier New', monospace;
+    padding: 10px;
+    selection-background-color: #415a77;
+}
+
+/* 仪表盘样式 */
+QDial {
+    background-color: rgba(27, 38, 59, 0.7);
+    border: 1px solid #415a77;
+    border-radius: 40px;
+    padding: 5px;
+}
+
+QDial::chunk {
+    background-color: #4cc9f0;
+    border-radius: 2px;
+}
+
+/* 指示灯样式 */
+QLabel#lampRed, QLabel#lampYellow, QLabel#lampGreen, QLabel#lampBlue {
+    border-radius: 15px;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
+}
+
+#lampRed { background-color: rgba(230, 57, 70, 0.3); }
+#lampYellow { background-color: rgba(255, 184, 28, 0.3); }
+#lampGreen { background-color: rgba(56, 176, 0, 0.3); }
+#lampBlue { background-color: rgba(0, 150, 255, 0.3); }
+
+/* 状态指示灯激活状态 */
+#lampRed.active { background-color: #e63946; box-shadow: 0 0 15px #e63946; }
+#lampYellow.active { background-color: #ffb81c; box-shadow: 0 0 15px #ffb81c; }
+#lampGreen.active { background-color: #38b000; box-shadow: 0 0 15px #38b000; }
+#lampBlue.active { background-color: #0096ff; box-shadow: 0 0 15px #0096ff; }
+
+/* 分隔线样式 */
+QFrame#divider {
+    background-color: #415a77;
+    border: none;
+}</string>
+  </property>
+  <layout class="QGridLayout" name="gridLayout">
+   <item row="2" column="1">
+    <widget class="QGroupBox" name="groupDisplay">
+     <property name="title">
+      <string>数据输出</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <widget class="QTextEdit" name="textDisplay">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
+    <widget class="QFrame" name="divider_2">
+     <property name="frameShape">
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="sensorButtonsLayout">
+     <property name="spacing">
+      <number>10</number>
+     </property>
+     <item>
+      <widget class="QPushButton" name="btnBrightnessSensor">
+       <property name="text">
+        <string>亮度传感器</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/brightness.png</normaloff>:/icons/brightness.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnUltrasonic">
+       <property name="text">
+        <string>超声波测距</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/distance.png</normaloff>:/icons/distance.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnDht11">
+       <property name="text">
+        <string>温湿度传感器</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/temperature.png</normaloff>:/icons/temperature.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QFrame" name="divider">
+     <property name="frameShape">
+      <enum>QFrame::HLine</enum>
+     </property>
+     <property name="frameShadow">
+      <enum>QFrame::Sunken</enum>
+     </property>
+     <property name="lineWidth">
+      <number>1</number>
+     </property>
+     <property name="midLineWidth">
+      <number>0</number>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="0">
+    <layout class="QHBoxLayout" name="horizontalLayout_5">
+     <item>
+      <widget class="QPushButton" name="btnPwmRainbow">
+       <property name="text">
+        <string>彩虹灯效</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/rainbow.png</normaloff>:/icons/rainbow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="2" column="0">
+    <widget class="QGroupBox" name="groupControl">
+     <property name="title">
+      <string>调节控制</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QLabel" name="label">
+        <property name="text">
+         <string>参数调节旋钮</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QDial" name="dialAdjust">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="minimum">
+         <number>0</number>
+        </property>
+        <property name="maximum">
+         <number>100</number>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout">
+        <item>
+         <spacer name="horizontalSpacer">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+        <item>
+         <widget class="QLabel" name="lampRed">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lampYellow">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lampGreen">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QLabel" name="lampBlue">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true"/>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="horizontalSpacer_2">
+          <property name="orientation">
+           <enum>Qt::Horizontal</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>40</width>
+            <height>20</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QLabel" name="label_2">
+        <property name="text">
+         <string>状态指示灯</string>
+        </property>
+        <property name="alignment">
+         <set>Qt::AlignCenter</set>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item row="4" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_2">
+     <item>
+      <widget class="QGroupBox" name="groupBuzzer">
+       <property name="title">
+        <string>蜂鸣器控制</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <property name="leftMargin">
+         <number>1</number>
+        </property>
+        <item>
+         <widget class="QPushButton" name="btnBuzzerOn">
+          <property name="text">
+           <string>开启蜂鸣器</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/icons/sound-on.png</normaloff>:/icons/sound-on.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnBuzzerOff">
+          <property name="text">
+           <string>关闭蜂鸣器</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/icons/sound-off.png</normaloff>:/icons/sound-off.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+     <item>
+      <widget class="QGroupBox" name="groupMotor">
+       <property name="title">
+        <string>电机控制</string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <widget class="QPushButton" name="btnMotorOn">
+          <property name="text">
+           <string>开启电机</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/icons/motor-on.png</normaloff>:/icons/motor-on.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="btnMotorOff">
+          <property name="text">
+           <string>关闭电机</string>
+          </property>
+          <property name="icon">
+           <iconset>
+            <normaloff>:/icons/motor-off.png</normaloff>:/icons/motor-off.png</iconset>
+          </property>
+          <property name="iconSize">
+           <size>
+            <width>24</width>
+            <height>24</height>
+           </size>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item row="0" column="0" colspan="2">
+    <widget class="QLabel" name="titleLabel">
+     <property name="text">
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p align=&quot;center&quot;&gt;&lt;span style=&quot; font-size:18pt; color:#4cc9f0;&quot;&gt;弹性数字平台控制面板&lt;/span&gt;&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+     </property>
+     <property name="alignment">
+      <set>Qt::AlignCenter</set>
+     </property>
+    </widget>
+   </item>
+   <item row="6" column="1">
+    <widget class="QPushButton" name="btnPwmLightshow">
+     <property name="text">
+      <string>灯光秀</string>
+     </property>
+     <property name="icon">
+      <iconset>
+       <normaloff>:/icons/lightshow.png</normaloff>:/icons/lightshow.png</iconset>
+     </property>
+     <property name="iconSize">
+      <size>
+       <width>24</width>
+       <height>24</height>
+      </size>
+     </property>
+    </widget>
+   </item>
+   <item row="7" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayout_6">
+     <item>
+      <widget class="QPushButton" name="btnRed">
+       <property name="text">
+        <string>红灯</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/red-light.png</normaloff>:/icons/red-light.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnYellow">
+       <property name="text">
+        <string>黄灯</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/yellow-light.png</normaloff>:/icons/yellow-light.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+       <property name="autoDefault">
+        <bool>false</bool>
+       </property>
+       <property name="default">
+        <bool>false</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnGreen">
+       <property name="text">
+        <string>绿灯</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/green-light.png</normaloff>:/icons/green-light.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnBlue">
+       <property name="text">
+        <string>蓝灯</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/blue-light.png</normaloff>:/icons/blue-light.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <resources/>
+ <connections/>
+</ui>
