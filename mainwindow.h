@@ -45,6 +45,12 @@ private:
     Ui::MainWindow *ui;
     QVsoaClient *m_client; // 添加QVsoaClient成员变量
     bool m_pwmRainbowOn = false; // 彩虹灯开关状态
+    QTimer *m_lightshowTimer = nullptr; // 灯光秀定时器
+    bool m_lightshowOn = false; // 灯光秀开关状态
+    bool isRedOn = false;
+    bool isYellowOn = false;
+    bool isGreenOn = false;
+    bool isBlueOn = false;
 
     // 初始化灯的状态
     void initLamps();

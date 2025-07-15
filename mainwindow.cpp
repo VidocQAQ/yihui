@@ -5,35 +5,52 @@
 #include <QRandomGenerator>
 #include <QVsoa>
 #include <QDebug>
+#include <QTimer>
 
 constexpr char SERVER_PASSWORD[] = "123456";
 
 int count=0;
-
+int m_lightshowLedIndex = 1; // 新增成员变量，当前闪烁的LED编号
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
-    , ui(new Ui::MainWindow)
-    , m_client(nullptr)
-{
-    ui->setupUi(this);
+       , ui(new Ui::MainWindow)
+       , m_client(nullptr)
+       , m_lightshowTimer(new QTimer(this))
+   {
+       ui->setupUi(this);
 
-    // 设置初始文本
-    ui->textDisplay->setText("OLED启动！\n"
-);
 
-    // 初始化灯状态
-    initLamps();
+       
+       // 设置初始文本
+       ui->textDisplay->setText("OLED启动！\n"
+   );
 
-    // 设置调节旋钮初始值
-    ui->dialAdjust->setValue(50);
-    ui->textDisplay->append("调节旋钮初始值：50");
-    
-    // 初始化QVsoaClient连接
-    initVsoaClient();
+       // 初始化灯状态
+       initLamps();
+
+       // 设置调节旋钮初始值
+       ui->dialAdjust->setValue(50);
+       ui->textDisplay->append("调节旋钮初始值：50");
+
+       // 初始化QVsoaClient连接
+       initVsoaClient();
+       // 灯光秀定时器初始化
+       m_lightshowTimer->setInterval(10); // 100ms变色一次，可根据需要调整
+       connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
+           if (m_client && m_client->isConnected()) {
+               lightshowon(m_client, m_lightshowLedIndex);
+               m_lightshowLedIndex++;
+               if (m_lightshowLedIndex > 6) m_lightshowLedIndex = 1;
+           }
+       });
 }
 
 MainWindow::~MainWindow()
 {
+    if (m_lightshowTimer) {
+        m_lightshowTimer->stop();
+        delete m_lightshowTimer;
+    }
     if (m_client) {
         m_client->disconnect();
         delete m_client;
@@ -91,29 +108,65 @@ void MainWindow::cleartext(){
 void MainWindow::on_btnRed_clicked()
 {
     cleartext();
-    toggleLamp(ui->lampRed);
-    ui->textDisplay->append("红灯状态切换");
+    if (!isRedOn) {
+        redmonoon(m_client); // 传入 m_client
+        isRedOn = true;
+        ui->textDisplay->append("红灯已打开");
+        toggleLamp(ui->lampRed);
+    } else {
+        redmonooff(m_client); // 传入 m_client
+        isRedOn = false;
+        ui->textDisplay->append("红灯已关闭");
+        toggleLamp(ui->lampRed);
+    }
 }
 
 void MainWindow::on_btnYellow_clicked()
 {
     cleartext();
-    toggleLamp(ui->lampYellow);
-    ui->textDisplay->append("黄灯状态切换");
+    if (!isYellowOn) {
+        yellowmonoon(m_client);
+        isYellowOn = true;
+        ui->textDisplay->append("黄灯已打开");
+        toggleLamp(ui->lampYellow);
+    } else {
+        yellowmonooff(m_client);
+        isYellowOn = false;
+        ui->textDisplay->append("黄灯已关闭");
+        toggleLamp(ui->lampYellow);
+    }
 }
 
 void MainWindow::on_btnGreen_clicked()
 {
     cleartext();
-    toggleLamp(ui->lampGreen);
-    ui->textDisplay->append("绿灯状态切换");
+    if (!isGreenOn) {
+        greenmonoon(m_client);
+        isGreenOn = true;
+        ui->textDisplay->append("绿灯已打开");
+        toggleLamp(ui->lampGreen);
+    } else {
+        greenmonooff(m_client);
+        isGreenOn = false;
+        ui->textDisplay->append("绿灯已关闭");
+        toggleLamp(ui->lampGreen);
+    }
 }
 
 void MainWindow::on_btnBlue_clicked()
 {
     cleartext();
-    toggleLamp(ui->lampBlue);
-    ui->textDisplay->append("蓝灯状态切换");
+    if (!isBlueOn) {
+        bluemonoon(m_client);
+        isBlueOn = true;
+        ui->textDisplay->append("蓝灯已打开");
+        toggleLamp(ui->lampBlue);
+    } else {
+        bluemonooff(m_client);
+        isBlueOn = false;
+        ui->textDisplay->append("蓝灯已关闭");
+        toggleLamp(ui->lampBlue);
+    }
 }
 
 void MainWindow::on_btnBrightnessSensor_clicked()
@@ -169,9 +222,7 @@ void MainWindow::on_btnPwmRainbow_clicked()
         ui->textDisplay->append("多色灯：rainbow模式启动");
         // 检查客户端是否已连接
         if (m_client && m_client->isConnected()) {
-            // 调用lightCall函数
-            lightCall(m_client);
-            ui->textDisplay->append("已发送rainbow模式命令到服务器");
+            rainbowon(m_client);
         } else {
             ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
         }
@@ -180,8 +231,7 @@ void MainWindow::on_btnPwmRainbow_clicked()
         ui->textDisplay->append("多色灯：rainbow模式关闭");
         // 关闭rainbow模式的逻辑
         if (m_client && m_client->isConnected()) {
-            lightOffCall(m_client);
-            ui->textDisplay->append("已发送关灯命令到服务器");
+            rainbowoff(m_client);
         } else {
             ui->textDisplay->append("错误：VSOA客户端未连接，无法发送关灯命令");
         }
@@ -192,7 +242,25 @@ void MainWindow::on_btnPwmRainbow_clicked()
 void MainWindow::on_btnPwmLightshow_clicked()
 {
     cleartext();
-    ui->textDisplay->append("多色灯：lightshow模式启动");
+    if (!m_lightshowOn) {
+        ui->textDisplay->append("多色灯：lightshow模式启动");
+        if (m_client && m_client->isConnected()) {
+            m_lightshowLedIndex = 1; // 启动时从1号灯开始
+            m_lightshowTimer->start();
+            ui->textDisplay->append("已开始灯光秀");
+        } else {
+            ui->textDisplay->append("错误：VSOA客户端未连接，无法启动灯光秀");
+        }
+        m_lightshowOn = true;
+    } else {
+        ui->textDisplay->append("多色灯：lightshow模式关闭");
+        m_lightshowTimer->stop();
+        if (m_client && m_client->isConnected()) {
+            lightshowoff(m_client);
+            ui->textDisplay->append("已发送关灯命令到服务器");
+        }
+        m_lightshowOn = false;
+    }
 }
 
 void MainWindow::on_dialAdjust_valueChanged(int value)
@@ -216,16 +284,16 @@ void MainWindow::initVsoaClient()
 {
     // 创建QVsoaClient实例
     m_client = new QVsoaClient(this);
-    
+
     // 连接信号槽
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
-    
+
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
     m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
     // 设置自动重连
     m_client->autoConnect(1000, 500);
-    
+
     ui->textDisplay->append("正在连接VSOA服务器...");
 }
 
