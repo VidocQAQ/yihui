@@ -44,6 +44,7 @@ private slots:
 private:
     Ui::MainWindow *ui;
     QVsoaClient *m_client; // 添加QVsoaClient成员变量
+    bool m_pwmRainbowOn = false; // 彩虹灯开关状态
 
     // 初始化灯的状态
     void initLamps();

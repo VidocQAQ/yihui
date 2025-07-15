@@ -4,6 +4,7 @@
 #include <QColor>
 #include <QRandomGenerator>
 #include <QVsoa>
+#include <QDebug>
 
 constexpr char SERVER_PASSWORD[] = "123456";
 
@@ -164,15 +165,22 @@ void MainWindow::on_btnMotorOff_clicked()
 void MainWindow::on_btnPwmRainbow_clicked()
 {
     cleartext();
-    ui->textDisplay->append("多色灯：rainbow模式启动");
-    
-    // 检查客户端是否已连接
-    if (m_client && m_client->isConnected()) {
-        // 调用lightCall函数
-        lightCall(m_client);
-        ui->textDisplay->append("已发送rainbow模式命令到服务器");
+    if (!m_pwmRainbowOn) {
+        ui->textDisplay->append("多色灯：rainbow模式启动");
+        // 检查客户端是否已连接
+        if (m_client && m_client->isConnected()) {
+            // 调用lightCall函数
+            lightCall(m_client);
+            ui->textDisplay->append("已发送rainbow模式命令到服务器");
+        } else {
+            ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
+        }
+        m_pwmRainbowOn = true;
     } else {
-        ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
+        ui->textDisplay->append("多色灯：rainbow模式关闭");
+        // TODO: 关闭rainbow模式的逻辑，暂时留空
+        qDebug("关闭逻辑");
+        m_pwmRainbowOn = false;
     }
 }
 
