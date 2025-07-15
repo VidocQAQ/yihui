@@ -3,6 +3,8 @@
 
 #include <QWidget>
 #include <QLabel>
+#include <QVsoa>
+#include "client_rpc.h"
 
 namespace Ui {
 class MainWindow;
@@ -41,12 +43,16 @@ private slots:
 
 private:
     Ui::MainWindow *ui;
+    QVsoaClient *m_client; // 添加QVsoaClient成员变量
 
     // 初始化灯的状态
     void initLamps();
 
     // 切换灯状态
     void toggleLamp(QLabel *lamp);
+    
+    // 初始化QVsoaClient连接
+    void initVsoaClient();
 };
 
 #endif // MAINWINDOW_H

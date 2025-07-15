@@ -3,12 +3,16 @@
 #include <QPushButton>
 #include <QColor>
 #include <QRandomGenerator>
+#include <QVsoa>
+
+constexpr char SERVER_PASSWORD[] = "123456";
 
 int count=0;
 
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
     , ui(new Ui::MainWindow)
+    , m_client(nullptr)
 {
     ui->setupUi(this);
 
@@ -22,10 +26,17 @@ MainWindow::MainWindow(QWidget *parent)
     // 设置调节旋钮初始值
     ui->dialAdjust->setValue(50);
     ui->textDisplay->append("调节旋钮初始值：50");
+    
+    // 初始化QVsoaClient连接
+    initVsoaClient();
 }
 
 MainWindow::~MainWindow()
 {
+    if (m_client) {
+        m_client->disconnect();
+        delete m_client;
+    }
     delete ui;
 }
 
@@ -154,6 +165,15 @@ void MainWindow::on_btnPwmRainbow_clicked()
 {
     cleartext();
     ui->textDisplay->append("多色灯：rainbow模式启动");
+    
+    // 检查客户端是否已连接
+    if (m_client && m_client->isConnected()) {
+        // 调用lightCall函数
+        lightCall(m_client);
+        ui->textDisplay->append("已发送rainbow模式命令到服务器");
+    } else {
+        ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
+    }
 }
 
 void MainWindow::on_btnPwmLightshow_clicked()
@@ -177,5 +197,22 @@ void MainWindow::on_textDisplay_copyAvailable(bool b)
 void MainWindow::on_dialAdjust_actionTriggered(int action)
 {
 
+}
+
+void MainWindow::initVsoaClient()
+{
+    // 创建QVsoaClient实例
+    m_client = new QVsoaClient(this);
+    
+    // 连接信号槽
+    QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
+    QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
+    
+    // 连接到服务器（需要根据实际情况修改服务器地址和端口）
+    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
+    // 设置自动重连
+    m_client->autoConnect(1000, 500);
+    
+    ui->textDisplay->append("正在连接VSOA服务器...");
 }
 
