@@ -178,8 +178,13 @@ void MainWindow::on_btnPwmRainbow_clicked()
         m_pwmRainbowOn = true;
     } else {
         ui->textDisplay->append("多色灯：rainbow模式关闭");
-        // TODO: 关闭rainbow模式的逻辑，暂时留空
-        qDebug("关闭逻辑");
+        // 关闭rainbow模式的逻辑
+        if (m_client && m_client->isConnected()) {
+            lightOffCall(m_client);
+            ui->textDisplay->append("已发送关灯命令到服务器");
+        } else {
+            ui->textDisplay->append("错误：VSOA客户端未连接，无法发送关灯命令");
+        }
         m_pwmRainbowOn = false;
     }
 }

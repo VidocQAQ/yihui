@@ -51,4 +51,13 @@ void lightCall(QVsoaClient *client)//连接成功后，响应，发起调用
 
     invoker->call(payload);//用于发送信息到服务端，其中QVsoaPayload{}可以用于装json信息
 
+}
+
+void lightOffCall(QVsoaClient *client)
+{
+    auto invoker = new QVsoaClientRPCInvoker(client, "/ledpwm/off", RPCMethod::SET);
+    QVsoaPayload payload("", {}); // 空payload
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(payload);
 } 
+

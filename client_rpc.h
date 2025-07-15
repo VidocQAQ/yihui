@@ -13,5 +13,6 @@ void onConnected(bool ok, QString info);
 void onDisconnected();
 void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QVsoaPayload payload);
 void lightCall(QVsoaClient *client);
+void lightOffCall(QVsoaClient *client);
 
 #endif // CLIENT_RPC_H
