@@ -1,4 +1,5 @@
 #include "client_rpc.h"
+#include <QRandomGenerator>
 
 void onConnected(bool ok, QString info)//处理连接成功或者失败的回调
 {
@@ -29,9 +30,19 @@ void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QV
 
 void lightCall(QVsoaClient *client)//连接成功后，响应，发起调用
 {
+    // 生成随机RGB颜色
+    int r = QRandomGenerator::global()->bounded(256);
+    int g = QRandomGenerator::global()->bounded(256);
+    int b = QRandomGenerator::global()->bounded(256);
+    QString color = QString("%1%2%3")
+        .arg(r, 2, 16, QChar('0'))
+        .arg(g, 2, 16, QChar('0'))
+        .arg(b, 2, 16, QChar('0'));
+    color = color.toLower();
+
     auto invoker = new QVsoaClientRPCInvoker(client, "/ledpwm/set", RPCMethod::SET);//创建请求信息
     QVariantMap param = {
-                {"color","07e000" },
+                {"color", color },
                 {"brightness",80}
             };
 
