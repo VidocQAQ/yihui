@@ -36,4 +36,12 @@ void bluemonooff(QVsoaClient *client);
 //2.呼吸灯
 void breathon(QVsoaClient *client);
 void breathoff(QVsoaClient *client);
+
+
+//OLED相关功能
+//1.显示文字
+void displaytext(QVsoaClient *client, QString text);
+//2.清屏
+void clearoled(QVsoaClient *client);
+
 #endif // CLIENT_RPC_H

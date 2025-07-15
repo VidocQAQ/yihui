@@ -138,3 +138,22 @@ void bluemonooff(QVsoaClient *client){
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
 }
+
+
+//OLED相关功能
+//1.显示文字
+void displaytext(QVsoaClient *client, QString text){
+    auto invoker = new QVsoaClientRPCInvoker(client, "/oled/display", RPCMethod::SET);
+    QVariantMap param = {
+        {"text", text}
+    };
+    QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(payload);
+}
+//2.清屏
+void clearoled(QVsoaClient *client){
+    auto invoker = new QVsoaClientRPCInvoker(client, "/oled/clear", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}

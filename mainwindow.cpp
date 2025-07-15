@@ -20,7 +20,7 @@ MainWindow::MainWindow(QWidget *parent)
        ui->setupUi(this);
 
 
-       
+
        // 设置初始文本
        ui->textDisplay->setText("OLED启动！\n"
    );
@@ -194,7 +194,8 @@ void MainWindow::on_btnDht11_clicked()
 void MainWindow::on_btnBuzzerOn_clicked()
 {
     cleartext();
-    ui->textDisplay->append("蜂鸣器：开启");
+    clearoled(m_client);
+    ui->textDisplay->append("清屏");//原来是蜂鸣器开启
 }
 
 void MainWindow::on_btnBuzzerOff_clicked()
@@ -288,9 +289,12 @@ void MainWindow::initVsoaClient()
     // 连接信号槽
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
+    QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,SYLIXOS!"));
 
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
-    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
+    m_client->connect2server("vsoa://127.0.0.1:5666", SERVER_PASSWORD);//oled
+    //m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);//led_pwm
+    //m_client->connect2server("vsoa://127.0.0.1:6600", SERVER_PASSWORD);//led_mono
     // 设置自动重连
     m_client->autoConnect(1000, 500);
 
