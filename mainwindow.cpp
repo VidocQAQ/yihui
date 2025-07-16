@@ -7,8 +7,14 @@
 #include <QDebug>
 #include <QTimer>
 #include <QDateTime>
+#include <QJsonObject>
+#include <QJsonDocument>
+#include <QJsonParseError>
+// 假设 QVsoaClient/QVsoaPayload 头文件已包含
 
 constexpr char SERVER_PASSWORD[] = "123456";
+const QString DHT11_URL = "/sensor/dht11/data";
+const QString USS_URL = "/sensor/uss/data";
 
 int count=0;
 int count1=0;
@@ -183,17 +189,44 @@ void MainWindow::on_btnBrightnessSensor_clicked()
 
 void MainWindow::on_btnUltrasonic_clicked()
 {
-    cleartext1();
-    float distance = QRandomGenerator::global()->bounded(500) / 10.0;
-    ui->textDisplay_2->append(QString("超声波测距：%1 cm").arg(distance));
+    if (!ussActive) {
+        if (!vsoaClient) {
+            vsoaClient = new QVsoaClient(this);
+            connect(vsoaClient, &QVsoaClient::connected, this, &MainWindow::handleVsoaConnected);
+            connect(vsoaClient, &QVsoaClient::disconnected, this, &MainWindow::handleVsoaDisconnected);
+            connect(vsoaClient, &QVsoaClient::message, this, &MainWindow::handleVsoaMessage);
+            vsoaClient->connect2server("vsoa://127.0.0.1:5500", SERVER_PASSWORD);
+            vsoaClient->autoConnect(1000, 500);
+        }
+        vsoaClient->subscribe(USS_URL);
+        ussActive = true;
+        ui->btnUltrasonic->setText("关闭超声波");
+    } else {
+        if (vsoaClient) vsoaClient->unsubscribe(USS_URL);
+        ussActive = false;
+        ui->btnUltrasonic->setText("开启超声波");
+    }
 }
 
 void MainWindow::on_btnDht11_clicked()
 {
-    cleartext1();
-    float temperature = QRandomGenerator::global()->bounded(10, 40);
-    float humidity = QRandomGenerator::global()->bounded(20, 80);
-    ui->textDisplay_2->append(QString("dht11：温度 %1 °C，湿度 %2 %").arg(temperature).arg(humidity));
+    if (!dht11Active) {
+        if (!vsoaClient) {
+            vsoaClient = new QVsoaClient(this);
+            connect(vsoaClient, &QVsoaClient::connected, this, &MainWindow::handleVsoaConnected);
+            connect(vsoaClient, &QVsoaClient::disconnected, this, &MainWindow::handleVsoaDisconnected);
+            connect(vsoaClient, &QVsoaClient::message, this, &MainWindow::handleVsoaMessage);
+            vsoaClient->connect2server("vsoa://127.0.0.1:5500", SERVER_PASSWORD);
+            vsoaClient->autoConnect(1000, 500);
+        }
+        vsoaClient->subscribe(DHT11_URL);
+        dht11Active = true;
+        ui->btnDht11->setText("关闭DHT11");
+    } else {
+        if (vsoaClient) vsoaClient->unsubscribe(DHT11_URL);
+        dht11Active = false;
+        ui->btnDht11->setText("开启DHT11");
+    }
 }
 
 void MainWindow::on_btnBuzzerOn_clicked()
@@ -321,12 +354,52 @@ void MainWindow::initVsoaClient()
 
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
     //m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
-    m_client->connect2server("vsoa://127.0.0.1:6600", SERVER_PASSWORD);//蜂鸣器测试
+    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);//测试
 
     // 设置自动重连
     m_client->autoConnect(1000, 500);
 
     ui->textDisplay->append("正在连接VSOA服务器...");
+}
+
+void MainWindow::handleVsoaConnected(bool ok, QString info)
+{
+    if (!ok) {
+        qDebug() << "Connected with server failed!";
+        return;
+    }
+    qDebug() << "Connected with server:" << info;
+}
+
+void MainWindow::handleVsoaDisconnected()
+{
+    qDebug() << "Connection break";
+}
+
+void MainWindow::handleVsoaMessage(QString url, QVsoaPayload payload)
+{
+    // 只处理DHT11和USS数据
+    QByteArray data = payload.param().toUtf8();
+    QJsonParseError err;
+    QJsonDocument doc = QJsonDocument::fromJson(data, &err);
+    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
+        ui->textDisplay_2->append(tr("收到无效数据: %1").arg(QString::fromUtf8(data)));
+        return;
+    }
+    QJsonObject obj = doc.object();
+    QDateTime now = QDateTime::currentDateTime();
+    if (url == DHT11_URL) {
+        double temp = obj.value("temperature").toDouble();
+        double hum = obj.value("humidity").toDouble();
+        QString unit = obj.value("unit").toString();
+        ui->textDisplay_2->append(tr("DHT11 温度: %1%2, 湿度: %3%%, 时间: %4")
+            .arg(temp).arg(unit).arg(hum).arg(now.toString("yyyy-MM-dd HH:mm:ss")));
+    } else if (url == USS_URL) {
+        double dist = obj.value("distance").toDouble();
+        QString unit = obj.value("unit").toString();
+        ui->textDisplay_2->append(tr("超声波距离: %1%2, 时间: %3")
+            .arg(dist).arg(unit).arg(now.toString("yyyy-MM-dd HH:mm:ss")));
+    }
 }
 
 

@@ -41,6 +41,10 @@ private slots:
 
     void on_btnBuzzerSongon_clicked();
 
+    void handleVsoaConnected(bool ok, QString info);
+    void handleVsoaDisconnected();
+    void handleVsoaMessage(QString url, QVsoaPayload payload);
+
 private:
     Ui::MainWindow *ui;
     QVsoaClient *m_client; // 添加QVsoaClient成员变量
@@ -53,6 +57,10 @@ private:
     bool isBlueOn = false;
     bool isBuzzerOn = false; // 蜂鸣器开关状态
     bool isBuzzerSongOn = false; // 蜂鸣器唱歌开关状态
+    bool dht11Active = false;
+    bool ussActive = false;
+    // 发布/订阅客户端
+    QVsoaClient *vsoaClient = nullptr;
 
     // 初始化灯的状态
     void initLamps();

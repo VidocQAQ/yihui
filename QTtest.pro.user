@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE QtCreatorProject>
-<!-- Written by QtCreator 5.0.3, 2025-07-16T11:25:32. -->
+<!-- Written by QtCreator 5.0.3, 2025-07-16T15:42:59. -->
 <qtcreator>
  <data>
   <variable>EnvironmentId</variable>
@@ -260,8 +260,8 @@
     <valuelist type="QVariantList" key="CustomOutputParsers"/>
     <value type="int" key="PE.EnvironmentAspect.Base">-1</value>
     <valuelist type="QVariantList" key="PE.EnvironmentAspect.Changes"/>
-    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt5ProjectManager.SylixOSRunConfiguration.IDD:/yihui/QTpro/yihui/QTtest.pro</value>
-    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/yihui/QTpro/yihui/QTtest.pro</value>
+    <value type="QString" key="ProjectExplorer.ProjectConfiguration.Id">Qt5ProjectManager.SylixOSRunConfiguration.IDD:/yihui/QTpro/test/yihui/QTtest.pro</value>
+    <value type="QString" key="ProjectExplorer.RunConfiguration.BuildKey">D:/yihui/QTpro/test/yihui/QTtest.pro</value>
     <value type="QString" key="RunConfiguration.Arguments">-platform vnc:size=1280x800,depth=32,port=5900</value>
     <value type="bool" key="RunConfiguration.UseCppDebugger">false</value>
     <value type="bool" key="RunConfiguration.UseCppDebuggerAuto">true</value>

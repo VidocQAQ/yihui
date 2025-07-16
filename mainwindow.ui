@@ -147,8 +147,7 @@ QLabel#lampRed, QLabel#lampYellow, QLabel#lampGreen, QLabel#lampBlue {
 /* 分隔线样式 */
 QFrame#divider {
     background-color: #415a77;
-    border: none;
-}</string>
+    border: none;}</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="1">
@@ -224,7 +223,7 @@ QFrame#divider {
      <item>
       <widget class="QPushButton" name="btnUltrasonic">
        <property name="text">
-        <string>超声波测距</string>
+        <string>开启超声波</string>
        </property>
        <property name="icon">
         <iconset>
@@ -241,7 +240,7 @@ QFrame#divider {
      <item>
       <widget class="QPushButton" name="btnDht11">
        <property name="text">
-        <string>温湿度传感器</string>
+        <string>开启DHT11</string>
        </property>
        <property name="icon">
         <iconset>
