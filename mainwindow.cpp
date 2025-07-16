@@ -199,15 +199,31 @@ void MainWindow::on_btnDht11_clicked()
 void MainWindow::on_btnBuzzerOn_clicked()
 {
     cleartext1();
-    clearoled(m_client);
-    ui->textDisplay_2->append("清屏");//原来是蜂鸣器开启
+    if (!isBuzzerOn) {
+        buzzeron(m_client);
+        isBuzzerOn = true;
+        ui->textDisplay_2->append("蜂鸣器已开启");
+    } else {
+        buzzeroff(m_client);
+        isBuzzerOn = false;
+        ui->textDisplay_2->append("蜂鸣器已关闭");
+    }
 }
 
-void MainWindow::on_btnBuzzerOff_clicked()
+void MainWindow::on_btnBuzzerSongon_clicked()
 {
     cleartext1();
-    ui->textDisplay_2->append("蜂鸣器：关闭");
+    if (!isBuzzerSongOn) {
+        buzzersongon(m_client);
+        isBuzzerSongOn = true;
+        ui->textDisplay_2->append("蜂鸣器唱歌已开始");
+    } else {
+        buzzersongoff(m_client);
+        isBuzzerSongOn = false;
+        ui->textDisplay_2->append("蜂鸣器唱歌已停止");
+    }
 }
+
 
 void MainWindow::on_btnMotorOn_clicked()
 {
@@ -304,11 +320,15 @@ void MainWindow::initVsoaClient()
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
 
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
-    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);//oled
+    //m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
+    m_client->connect2server("vsoa://127.0.0.1:6600", SERVER_PASSWORD);//蜂鸣器测试
 
     // 设置自动重连
     m_client->autoConnect(1000, 500);
 
     ui->textDisplay->append("正在连接VSOA服务器...");
 }
+
+
+
 

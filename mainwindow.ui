@@ -471,7 +471,7 @@ QFrame#divider {
          </widget>
         </item>
         <item>
-         <widget class="QPushButton" name="btnBuzzerOff">
+         <widget class="QPushButton" name="btnBuzzerSongon">
           <property name="text">
            <string>音乐播放</string>
           </property>

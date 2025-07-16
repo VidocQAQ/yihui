@@ -46,4 +46,10 @@ void displaytext(QVsoaClient *client, QString text);
 //2.清屏
 void clearoled(QVsoaClient *client);
 
+// 蜂鸣器相关功能
+void buzzeron(QVsoaClient *client);
+void buzzeroff(QVsoaClient *client);
+void buzzersongon(QVsoaClient *client);
+void buzzersongoff(QVsoaClient *client);
+
 #endif // CLIENT_RPC_H

@@ -29,7 +29,6 @@ private slots:
     void on_btnUltrasonic_clicked();
     void on_btnDht11_clicked();
     void on_btnBuzzerOn_clicked();
-    void on_btnBuzzerOff_clicked();
     void on_btnMotorOn_clicked();
     void on_btnMotorOff_clicked();
     void on_btnPwmRainbow_clicked();
@@ -40,7 +39,7 @@ private slots:
 
     void on_dialAdjust_actionTriggered(int action);
 
-    //void on_lampRed_linkActivated(const QString &link);
+    void on_btnBuzzerSongon_clicked();
 
 private:
     Ui::MainWindow *ui;
@@ -52,6 +51,8 @@ private:
     bool isYellowOn = false;
     bool isGreenOn = false;
     bool isBlueOn = false;
+    bool isBuzzerOn = false; // 蜂鸣器开关状态
+    bool isBuzzerSongOn = false; // 蜂鸣器唱歌开关状态
 
     // 初始化灯的状态
     void initLamps();

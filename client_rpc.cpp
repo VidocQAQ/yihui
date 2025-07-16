@@ -27,7 +27,7 @@ void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QV
         //输出信息，也可以添加其他操作
 
     } else {
-        qDebug() << "Command /light error!";
+        qDebug() << "Command error!";
     }
     invoker->deleteLater();
 }
@@ -215,3 +215,30 @@ void clearoled(QVsoaClient *client){
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
 }
+
+
+// 蜂鸣器相关功能
+void buzzeron(QVsoaClient *client) {
+    auto invoker = new QVsoaClientRPCInvoker(client, "/buzzer/on", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}
+
+void buzzeroff(QVsoaClient *client) {
+    auto invoker = new QVsoaClientRPCInvoker(client, "/buzzer/off", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}
+
+void buzzersongon(QVsoaClient *client) {
+    auto invoker = new QVsoaClientRPCInvoker(client, "/buzzer/songon", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}
+
+void buzzersongoff(QVsoaClient *client) {
+    auto invoker = new QVsoaClientRPCInvoker(client, "/buzzer/songoff", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}
+
