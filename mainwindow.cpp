@@ -6,10 +6,12 @@
 #include <QVsoa>
 #include <QDebug>
 #include <QTimer>
+#include <QDateTime>
 
 constexpr char SERVER_PASSWORD[] = "123456";
 
 int count=0;
+int count1=0;
 int m_lightshowLedIndex = 1; // 新增成员变量，当前闪烁的LED编号
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
@@ -22,20 +24,16 @@ MainWindow::MainWindow(QWidget *parent)
 
 
        // 设置初始文本
-       ui->textDisplay->setText("OLED启动！\n"
-   );
-
+       QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+       ui->textDisplay->setText(QString("HELLO,BAOZI!\n"));
+       ui->textDisplay_2->setText(QString("当前时间: %1\n").arg(now));
        // 初始化灯状态
        initLamps();
-
-       // 设置调节旋钮初始值
-       ui->dialAdjust->setValue(50);
-       ui->textDisplay->append("调节旋钮初始值：50");
 
        // 初始化QVsoaClient连接
        initVsoaClient();
        // 灯光秀定时器初始化
-       m_lightshowTimer->setInterval(5); // 100ms变色一次，可根据需要调整
+       m_lightshowTimer->setInterval(5); // 5ms变色一次，可根据需要调整
        connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
            if (m_client && m_client->isConnected()) {
                lightshowon(m_client, m_lightshowLedIndex);
@@ -99,9 +97,16 @@ void MainWindow::toggleLamp(QLabel *lamp)
 
 void MainWindow::cleartext(){
     count++;
-    if(count==3){
+    if(count==2){
       ui->textDisplay->clear();
       count=0;
+    }
+}
+void MainWindow::cleartext1(){
+    count1++;
+    if(count1==2){
+      ui->textDisplay_2->clear();
+      count1=0;
     }
 }
 
@@ -171,49 +176,49 @@ void MainWindow::on_btnBlue_clicked()
 
 void MainWindow::on_btnBrightnessSensor_clicked()
 {
-    cleartext();
+    cleartext1();
     int brightness = QRandomGenerator::global()->bounded(100);
-    ui->textDisplay->append(QString("亮度传感器：%1 lux").arg(brightness));
+    ui->textDisplay_2->append(QString("亮度传感器：%1 lux").arg(brightness));
 }
 
 void MainWindow::on_btnUltrasonic_clicked()
 {
-    cleartext();
+    cleartext1();
     float distance = QRandomGenerator::global()->bounded(500) / 10.0;
-    ui->textDisplay->append(QString("超声波测距：%1 cm").arg(distance));
+    ui->textDisplay_2->append(QString("超声波测距：%1 cm").arg(distance));
 }
 
 void MainWindow::on_btnDht11_clicked()
 {
-    cleartext();
+    cleartext1();
     float temperature = QRandomGenerator::global()->bounded(10, 40);
     float humidity = QRandomGenerator::global()->bounded(20, 80);
-    ui->textDisplay->append(QString("dht11：温度 %1 °C，湿度 %2 %").arg(temperature).arg(humidity));
+    ui->textDisplay_2->append(QString("dht11：温度 %1 °C，湿度 %2 %").arg(temperature).arg(humidity));
 }
 
 void MainWindow::on_btnBuzzerOn_clicked()
 {
-    cleartext();
+    cleartext1();
     clearoled(m_client);
-    ui->textDisplay->append("清屏");//原来是蜂鸣器开启
+    ui->textDisplay_2->append("清屏");//原来是蜂鸣器开启
 }
 
 void MainWindow::on_btnBuzzerOff_clicked()
 {
-    cleartext();
-    ui->textDisplay->append("蜂鸣器：关闭");
+    cleartext1();
+    ui->textDisplay_2->append("蜂鸣器：关闭");
 }
 
 void MainWindow::on_btnMotorOn_clicked()
 {
-    cleartext();
-    ui->textDisplay->append("电机：开启");
+    cleartext1();
+    ui->textDisplay_2->append("电机：开启");
 }
 
 void MainWindow::on_btnMotorOff_clicked()
 {
-    cleartext();
-    ui->textDisplay->append("电机：关闭");
+    cleartext1();
+    ui->textDisplay_2->append("电机：关闭");
 }
 
 void MainWindow::on_btnPwmRainbow_clicked()

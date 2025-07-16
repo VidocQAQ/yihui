@@ -156,9 +156,22 @@ QFrame#divider {
      <property name="title">
       <string>数据输出</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
+     <layout class="QGridLayout" name="gridLayout_2">
+      <property name="topMargin">
+       <number>0</number>
+      </property>
+      <item row="0" column="0">
        <widget class="QTextEdit" name="textDisplay">
+        <property name="styleSheet">
+         <string notr="true"/>
+        </property>
+        <property name="readOnly">
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" rowspan="2">
+       <widget class="QTextEdit" name="textDisplay_2">
         <property name="styleSheet">
          <string notr="true"/>
         </property>
@@ -443,7 +456,7 @@ QFrame#divider {
         <item>
          <widget class="QPushButton" name="btnBuzzerOn">
           <property name="text">
-           <string>开启蜂鸣器</string>
+           <string>蜂鸣器开关</string>
           </property>
           <property name="icon">
            <iconset>
@@ -460,7 +473,7 @@ QFrame#divider {
         <item>
          <widget class="QPushButton" name="btnBuzzerOff">
           <property name="text">
-           <string>关闭蜂鸣器</string>
+           <string>音乐播放</string>
           </property>
           <property name="icon">
            <iconset>

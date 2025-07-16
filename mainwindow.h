@@ -19,6 +19,7 @@ public:
     ~MainWindow();
 
 private slots:
+    void cleartext1();
     void cleartext();
     void on_btnRed_clicked();
     void on_btnYellow_clicked();
