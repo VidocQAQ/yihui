@@ -1,5 +1,9 @@
 #include "client_rpc.h"
 #include <QRandomGenerator>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonValue>
+#include <QJsonParseError>
 
 void onConnected(bool ok, QString info)//处理连接成功或者失败的回调
 {
@@ -94,10 +98,49 @@ void lightshowoff(QVsoaClient *client){
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
 }
+//查询灯状态
+int isled_pwmOn(QVsoaClient *client){
+    QVsoaClientSynchronizer sync(client);
+    auto [success, header] = sync.call("/ledpwm/status", RPCMethod::GET, QVsoaPayload{});
+    if (success) {
+        QString payloadStr = header.payload().param();
+        QJsonParseError err;
+        QJsonDocument doc = QJsonDocument::fromJson(payloadStr.toUtf8(), &err);
+        if (err.error != QJsonParseError::NoError) {
+            qDebug() << "JSON parse error:" << err.errorString();
+            return -1;
+        }
+        QJsonObject obj = doc.object();
+        QStringList keys = {"red", "yellow", "green", "blue"};
+        int onCount = 0, offCount = 0;
+        for (const QString& key : keys) {
+            if (!obj.contains(key)) return -1;
+            QJsonObject led = obj[key].toObject();
+            QString state = led["state"].toString();
+            if (state == "on") onCount++;
+            else if (state == "off") offCount++;
+        }
+        if (onCount == 4) return 1;
+        if (offCount == 4) return 0;
+        return -1;
+    } else {
+        qDebug() << "Synchronous RPC call error!";
+        return -1;
+    }
+}
 
 
+
+
+
+//
+//
+//
+//
+//
+//
 //led_mono
-//单色灯光开关
+//1.单色灯光开关
 void redmonoon(QVsoaClient *client){
     auto invoker = new QVsoaClientRPCInvoker(client, "/ledmono/red/on", RPCMethod::SET);
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
@@ -138,7 +181,22 @@ void bluemonooff(QVsoaClient *client){
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
 }
+//2.呼吸灯，红色为例
+void breathon(QVsoaClient *client, int brightness){
+    auto invoker = new QVsoaClientRPCInvoker(client, "/ledmono/red/brightness", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
 
+    QVariantMap param = {
+        {"brightness", brightness}
+    };
+    QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
+    invoker->call(payload);
+}
+void breathoff(QVsoaClient *client){
+    auto invoker = new QVsoaClientRPCInvoker(client, "/ledmono/off", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}
 
 //OLED相关功能
 //1.显示文字

@@ -21,6 +21,8 @@ void rainbowoff(QVsoaClient *client);
 //2.lightshow模式
 void lightshowon(QVsoaClient *client, int ledIndex);
 void lightshowoff(QVsoaClient *client);
+//3.查询状态
+int isled_pwmOn(QVsoaClient *client);
 
 
 //led_mono相关功能

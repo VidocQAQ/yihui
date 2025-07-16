@@ -35,7 +35,7 @@ MainWindow::MainWindow(QWidget *parent)
        // 初始化QVsoaClient连接
        initVsoaClient();
        // 灯光秀定时器初始化
-       m_lightshowTimer->setInterval(10); // 100ms变色一次，可根据需要调整
+       m_lightshowTimer->setInterval(5); // 100ms变色一次，可根据需要调整
        connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
            if (m_client && m_client->isConnected()) {
                lightshowon(m_client, m_lightshowLedIndex);
@@ -219,7 +219,10 @@ void MainWindow::on_btnMotorOff_clicked()
 void MainWindow::on_btnPwmRainbow_clicked()
 {
     cleartext();
+    m_lightshowTimer->stop();
+    lightshowoff(m_client);
     if (!m_pwmRainbowOn) {
+        m_lightshowOn=false;
         ui->textDisplay->append("多色灯：rainbow模式启动");
         // 检查客户端是否已连接
         if (m_client && m_client->isConnected()) {
@@ -243,7 +246,11 @@ void MainWindow::on_btnPwmRainbow_clicked()
 void MainWindow::on_btnPwmLightshow_clicked()
 {
     cleartext();
+    if(isled_pwmOn(m_client)==1){
+        rainbowoff(m_client);
+    }
     if (!m_lightshowOn) {
+        m_pwmRainbowOn=false;
         ui->textDisplay->append("多色灯：lightshow模式启动");
         if (m_client && m_client->isConnected()) {
             m_lightshowLedIndex = 1; // 启动时从1号灯开始
@@ -289,12 +296,11 @@ void MainWindow::initVsoaClient()
     // 连接信号槽
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
-    QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,SYLIXOS!"));
+    QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
 
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
-    m_client->connect2server("vsoa://127.0.0.1:5666", SERVER_PASSWORD);//oled
-    //m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);//led_pwm
-    //m_client->connect2server("vsoa://127.0.0.1:6600", SERVER_PASSWORD);//led_mono
+    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);//oled
+
     // 设置自动重连
     m_client->autoConnect(1000, 500);
 
