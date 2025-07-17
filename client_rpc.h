@@ -11,8 +11,10 @@ using namespace std::placeholders;
 // 全局变量声明
 extern QString latestDHT11;
 extern QString latestUSS;
+extern QString latestADC;
 extern bool hasDHT11;
 extern bool hasUSS;
+extern bool hasADC;
 
 // 函数声明
 void onConnected(bool ok, QString info);

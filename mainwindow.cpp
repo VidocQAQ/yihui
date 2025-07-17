@@ -181,8 +181,19 @@ void MainWindow::on_btnBlue_clicked()
 void MainWindow::on_btnBrightnessSensor_clicked()
 {
     cleartext1();
-    int brightness = QRandomGenerator::global()->bounded(100);
-    ui->textDisplay_2->append(QString("亮度传感器：%1 lux").arg(brightness));
+    if (m_client && m_client->isConnected()) {
+        if (!isADCOn) {
+            ADCon(m_client);
+            ui->textDisplay_2->append("亮度传感器：开启");
+            isADCOn = true;
+        } else {
+            ADCoff(m_client);
+            ui->textDisplay_2->append("亮度传感器：关闭");
+            isADCOn = false;
+        }
+    } else {
+        ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
+    }
 }
 
 void MainWindow::on_btnUltrasonic_clicked()
@@ -412,21 +423,34 @@ void MainWindow::initVsoaClient()
     ui->textDisplay->append("正在连接VSOA服务器...");
     m_client->subscribe("/sensor/dht11/data");
     m_client->subscribe("/sensor/uss/data");
-    m_client->autoConsistent({"/sensor/dht11/data", "/sensor/uss/data"}, 1000);
+    m_client->subscribe("/adc/data");
+    m_client->autoConsistent({"/sensor/dht11/data", "/sensor/uss/data", "/adc/data"}, 1000);
 
 }
 
 void MainWindow::displaySensorStatus()
 {
-    // 根据全局标志输出对应信息
-    if (hasDHT11 && !hasUSS) {
+     // 根据全局标志输出对应信息
+     if (hasDHT11 && !hasUSS && !hasADC) {
         ui->textDisplay_2->append(latestDHT11);
-    } else if (hasUSS && !hasDHT11) {
+    } else if (hasUSS && !hasDHT11 && !hasADC) {
         ui->textDisplay_2->append(latestUSS);
-    } else if (hasDHT11 && hasUSS) {
+    } else if (hasADC && !hasDHT11 && !hasUSS) {
+        ui->textDisplay_2->append(latestADC);
+    } else if (hasDHT11 && hasUSS && !hasADC) {
         QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestUSS);
         ui->textDisplay_2->append(combined);
-    } else {
+    } else if (hasDHT11 && hasADC && !hasUSS) {
+        QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestADC);
+        ui->textDisplay_2->append(combined);
+    } else if (hasUSS && hasADC && !hasDHT11) {
+        QString combined = QString("%1\n%2").arg(latestUSS).arg(latestADC);
+        ui->textDisplay_2->append(combined);
+    } else if (hasDHT11 && hasUSS && hasADC) {
+        QString combined = QString("%1\n%2\n%3").arg(latestDHT11).arg(latestUSS).arg(latestADC);
+        ui->textDisplay_2->append(combined);
+    }
+    else {
         ui->textDisplay_2->append("未订阅任何传感器数据");
     }
 }

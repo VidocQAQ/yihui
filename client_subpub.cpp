@@ -16,8 +16,8 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
                 QJsonObject obj = doc.object();
                 double temperature = obj.value("temperature").toDouble();
                 int humidity = obj.value("humidity").toInt();
-                latestDHT11 = QString("temperature:%1℃\nhumidity:%2%%").arg(temperature).arg(humidity);
-                if(hasDHT11&&!hasUSS){
+                latestDHT11 = QString("temp : %1C\nhumi : %2%%").arg(temperature).arg(humidity);
+                if(hasDHT11&&!hasUSS&&!hasADC){
                 displaytext(clientconst, latestDHT11);
                 qDebug() << "DHT11 :" << payload.param();
                 }
@@ -30,22 +30,48 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
             if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
                 QJsonObject obj = doc.object();
                 double distance = obj.value("distance").toDouble();
-                latestUSS = QString("distance:%1cm").arg(distance);
-                if(hasUSS&&!hasDHT11){
+                latestUSS = QString("dist : %1cm").arg(distance);
+                if(hasUSS&&!hasDHT11&&!hasADC){
                 displaytext(clientconst, latestUSS);
                 qDebug() << "USS :" << distance;
                 }
             }
         }
+        else if(url == "/adc/data"){
+            QString param = payload.param();
+            QJsonParseError parseError;
+            QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
+            if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
+                QJsonObject obj = doc.object();
+                QJsonObject photosensitive = obj.value("photosensitive").toObject();
+                int valuec0 = photosensitive.value("valuec0").toInt();
+                latestADC = QString("brig : %1").arg(valuec0);
+                if(hasADC && !hasDHT11 && !hasUSS){
+                    displaytext(clientconst, latestADC);
+                    qDebug() << "ADC :" << valuec0;
+                }
+            }
         else{
             qDebug() << "ERROR" ;
         }
-        if(hasDHT11&&hasUSS){
+        if(hasDHT11 && hasUSS && !hasADC){
             QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestUSS);
             displaytext(clientconst, combined);
         }
+        else if(hasDHT11 && hasADC && !hasUSS){
+            QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestADC);
+            displaytext(clientconst, combined);
+        }
+        else if(hasUSS && hasADC && !hasDHT11){
+            QString combined = QString("%1\n%2").arg(latestUSS).arg(latestADC);
+            displaytext(clientconst, combined);
+        }
+        else if(hasDHT11 && hasUSS && hasADC){
+            QString combined = QString("%1\n%2\n%3").arg(latestDHT11).arg(latestUSS).arg(latestADC);
+            displaytext(clientconst, combined);
+        }
     }
-
+}
 
 
 
@@ -80,6 +106,22 @@ void USSoff(QVsoaClient *client){
     clearoled(client);
     if (success) {
           qDebug() << "取消订阅 USS";
+    } else {
+          qDebug() << "取消订阅失败，可能未订阅该主题或网络异常";
+    }
+}
+
+void ADCon(QVsoaClient *client){
+    client->subscribe("/adc/data");
+    client->autoConsistent({"/adc/data"}, 1000);
+    hasADC = true;
+}
+void ADCoff(QVsoaClient *client){
+    bool success = client->unsubscribe("/adc/data");
+    hasADC = false;
+    clearoled(client);
+    if (success) {
+          qDebug() << "取消订阅 ADC";
     } else {
           qDebug() << "取消订阅失败，可能未订阅该主题或网络异常";
     }

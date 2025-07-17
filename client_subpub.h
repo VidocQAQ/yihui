@@ -12,3 +12,6 @@ void DHT11off(QVsoaClient *client);
 
 void USSon(QVsoaClient *client);
 void USSoff(QVsoaClient *client);
+
+void ADCon(QVsoaClient *client);
+void ADCoff(QVsoaClient *client);
