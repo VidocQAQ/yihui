@@ -189,44 +189,39 @@ void MainWindow::on_btnBrightnessSensor_clicked()
 
 void MainWindow::on_btnUltrasonic_clicked()
 {
-    if (!ussActive) {
-        if (!vsoaClient) {
-            vsoaClient = new QVsoaClient(this);
-            connect(vsoaClient, &QVsoaClient::connected, this, &MainWindow::handleVsoaConnected);
-            connect(vsoaClient, &QVsoaClient::disconnected, this, &MainWindow::handleVsoaDisconnected);
-            connect(vsoaClient, &QVsoaClient::message, this, &MainWindow::handleVsoaMessage);
-            vsoaClient->connect2server("vsoa://127.0.0.1:5500", SERVER_PASSWORD);
-            vsoaClient->autoConnect(1000, 500);
+    cleartext1();
+    if (m_client && m_client->isConnected()) {
+        if (!isUSSOn) {
+            USSon(m_client);
+            ui->textDisplay_2->append("超声波测距：开启");
+            isUSSOn = true;
+        } else {
+            USSoff(m_client);
+            ui->textDisplay_2->append("超声波测距：关闭");
+            isUSSOn = false;
         }
-        vsoaClient->subscribe(USS_URL);
-        ussActive = true;
-        ui->btnUltrasonic->setText("关闭超声波");
     } else {
-        if (vsoaClient) vsoaClient->unsubscribe(USS_URL);
-        ussActive = false;
-        ui->btnUltrasonic->setText("开启超声波");
+        ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
     }
 }
 
 void MainWindow::on_btnDht11_clicked()
 {
-    if (!dht11Active) {
-        if (!vsoaClient) {
-            vsoaClient = new QVsoaClient(this);
-            connect(vsoaClient, &QVsoaClient::connected, this, &MainWindow::handleVsoaConnected);
-            connect(vsoaClient, &QVsoaClient::disconnected, this, &MainWindow::handleVsoaDisconnected);
-            connect(vsoaClient, &QVsoaClient::message, this, &MainWindow::handleVsoaMessage);
-            vsoaClient->connect2server("vsoa://127.0.0.1:5500", SERVER_PASSWORD);
-            vsoaClient->autoConnect(1000, 500);
+    cleartext1();
+    if (m_client && m_client->isConnected()) {
+        if (!isDHT11On) {
+            DHT11on(m_client);
+            ui->textDisplay_2->append("温湿度传感器：开启");
+             isDHT11On = true;
+        } else {
+            DHT11off(m_client);
+            ui->textDisplay_2->append("温湿度传感器：关闭");
+            isDHT11On = false;
         }
-        vsoaClient->subscribe(DHT11_URL);
-        dht11Active = true;
-        ui->btnDht11->setText("关闭DHT11");
     } else {
-        if (vsoaClient) vsoaClient->unsubscribe(DHT11_URL);
-        dht11Active = false;
-        ui->btnDht11->setText("开启DHT11");
+        ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
     }
+    
 }
 
 void MainWindow::on_btnBuzzerOn_clicked()
@@ -351,6 +346,11 @@ void MainWindow::initVsoaClient()
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
+    QObject::connect(m_client, &QVsoaClient::message, this,
+        [=](QString url, QVsoaPayload payload){
+            onMessage(m_client, url, payload);displaySensorStatus();
+        });
+    
 
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
     //m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
@@ -360,47 +360,27 @@ void MainWindow::initVsoaClient()
     m_client->autoConnect(1000, 500);
 
     ui->textDisplay->append("正在连接VSOA服务器...");
+    m_client->subscribe("/sensor/dht11/data");
+    m_client->subscribe("/sensor/uss/data");
+    m_client->autoConsistent({"/sensor/dht11/data", "/sensor/uss/data"}, 1000);
+
 }
 
-void MainWindow::handleVsoaConnected(bool ok, QString info)
+void MainWindow::displaySensorStatus()
 {
-    if (!ok) {
-        qDebug() << "Connected with server failed!";
-        return;
+    // 根据全局标志输出对应信息
+    if (hasDHT11 && !hasUSS) {
+        ui->textDisplay_2->append(latestDHT11);
+    } else if (hasUSS && !hasDHT11) {
+        ui->textDisplay_2->append(latestUSS);
+    } else if (hasDHT11 && hasUSS) {
+        QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestUSS);
+        ui->textDisplay_2->append(combined);
+    } else {
+        ui->textDisplay_2->append("未订阅任何传感器数据");
     }
-    qDebug() << "Connected with server:" << info;
 }
 
-void MainWindow::handleVsoaDisconnected()
-{
-    qDebug() << "Connection break";
-}
-
-void MainWindow::handleVsoaMessage(QString url, QVsoaPayload payload)
-{
-    // 只处理DHT11和USS数据
-    QByteArray data = payload.param().toUtf8();
-    QJsonParseError err;
-    QJsonDocument doc = QJsonDocument::fromJson(data, &err);
-    if (err.error != QJsonParseError::NoError || !doc.isObject()) {
-        ui->textDisplay_2->append(tr("收到无效数据: %1").arg(QString::fromUtf8(data)));
-        return;
-    }
-    QJsonObject obj = doc.object();
-    QDateTime now = QDateTime::currentDateTime();
-    if (url == DHT11_URL) {
-        double temp = obj.value("temperature").toDouble();
-        double hum = obj.value("humidity").toDouble();
-        QString unit = obj.value("unit").toString();
-        ui->textDisplay_2->append(tr("DHT11 温度: %1%2, 湿度: %3%%, 时间: %4")
-            .arg(temp).arg(unit).arg(hum).arg(now.toString("yyyy-MM-dd HH:mm:ss")));
-    } else if (url == USS_URL) {
-        double dist = obj.value("distance").toDouble();
-        QString unit = obj.value("unit").toString();
-        ui->textDisplay_2->append(tr("超声波距离: %1%2, 时间: %3")
-            .arg(dist).arg(unit).arg(now.toString("yyyy-MM-dd HH:mm:ss")));
-    }
-}
 
 
 

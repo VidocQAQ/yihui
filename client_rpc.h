@@ -8,6 +8,12 @@
 
 using namespace std::placeholders;
 
+// 全局变量声明
+extern QString latestDHT11;
+extern QString latestUSS;
+extern bool hasDHT11;
+extern bool hasUSS;
+
 // 函数声明
 void onConnected(bool ok, QString info);
 void onDisconnected();

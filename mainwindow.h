@@ -5,6 +5,7 @@
 #include <QLabel>
 #include <QVsoa>
 #include "client_rpc.h"
+#include "client_subpub.h"
 
 namespace Ui {
 class MainWindow;
@@ -17,7 +18,7 @@ class MainWindow : public QWidget
 public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
-
+    void displaySensorStatus();
 private slots:
     void cleartext1();
     void cleartext();
@@ -41,9 +42,6 @@ private slots:
 
     void on_btnBuzzerSongon_clicked();
 
-    void handleVsoaConnected(bool ok, QString info);
-    void handleVsoaDisconnected();
-    void handleVsoaMessage(QString url, QVsoaPayload payload);
 
 private:
     Ui::MainWindow *ui;
@@ -57,8 +55,8 @@ private:
     bool isBlueOn = false;
     bool isBuzzerOn = false; // 蜂鸣器开关状态
     bool isBuzzerSongOn = false; // 蜂鸣器唱歌开关状态
-    bool dht11Active = false;
-    bool ussActive = false;
+    bool isDHT11On = true;
+    bool isUSSOn = true;
     // 发布/订阅客户端
     QVsoaClient *vsoaClient = nullptr;
 

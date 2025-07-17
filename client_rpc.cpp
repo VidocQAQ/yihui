@@ -5,6 +5,13 @@
 #include <QJsonValue>
 #include <QJsonParseError>
 
+
+// 全局变量定义
+QString latestDHT11;
+QString latestUSS;
+bool hasDHT11 = true;
+bool hasUSS = true;
+
 void onConnected(bool ok, QString info)//处理连接成功或者失败的回调
 {
     if (!ok) {
