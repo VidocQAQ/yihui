@@ -77,24 +77,29 @@ void rainbowoff(QVsoaClient *client)
 } 
 
 //lightshow模式
-void lightshowon(QVsoaClient *client, int ledIndex)
+void lightshowon(QVsoaClient *client)
 {
-    // 生成随机RGB颜色
-    int r = QRandomGenerator::global()->bounded(256);
-    int g = QRandomGenerator::global()->bounded(256);
-    int b = QRandomGenerator::global()->bounded(256);
-    QString color = QString("%1%2%3")
-        .arg(r, 2, 16, QChar('0'))
-        .arg(g, 2, 16, QChar('0'))
-        .arg(b, 2, 16, QChar('0'));
-    color = color.toLower();
-
-    QString path = QString("/ledpwm/%1/set").arg(ledIndex);
-    auto invoker = new QVsoaClientRPCInvoker(client, path, RPCMethod::SET);
+    QVariantList leds;
+    for (int i = 1; i <= 6; ++i) {
+        int r = QRandomGenerator::global()->bounded(256);
+        int g = QRandomGenerator::global()->bounded(256);
+        int b = QRandomGenerator::global()->bounded(256);
+        QString color = QString("%1%2%3")
+            .arg(r, 2, 16, QChar('0'))
+            .arg(g, 2, 16, QChar('0'))
+            .arg(b, 2, 16, QChar('0'));
+        color = color.toUpper();
+        QVariantMap led = {
+            {"id", i},
+            {"color", color},
+            {"brightness", QRandomGenerator::global()->bounded(50, 101)}
+        };
+        leds.append(led);
+    }
     QVariantMap param = {
-        {"color", color},
-        {"brightness", 80}
+        {"leds", leds}
     };
+    auto invoker = new QVsoaClientRPCInvoker(client, "/ledpwm/batch", RPCMethod::SET);
     QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(payload);

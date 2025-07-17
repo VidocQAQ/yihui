@@ -25,7 +25,7 @@ void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QV
 void rainbowon(QVsoaClient *client);
 void rainbowoff(QVsoaClient *client);
 //2.lightshow模式
-void lightshowon(QVsoaClient *client, int ledIndex);
+void lightshowon(QVsoaClient *client);
 void lightshowoff(QVsoaClient *client);
 //3.查询状态
 int isled_pwmOn(QVsoaClient *client);

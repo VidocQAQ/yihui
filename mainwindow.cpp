@@ -39,12 +39,10 @@ MainWindow::MainWindow(QWidget *parent)
        // 初始化QVsoaClient连接
        initVsoaClient();
        // 灯光秀定时器初始化
-       m_lightshowTimer->setInterval(1); // 5ms变色一次，可根据需要调整
+       m_lightshowTimer->setInterval(100); // 300ms变色一次，更慢更赏心悦目
        connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
            if (m_client && m_client->isConnected()) {
-               lightshowon(m_client, m_lightshowLedIndex);
-               m_lightshowLedIndex++;
-               if (m_lightshowLedIndex > 6) m_lightshowLedIndex = 1;
+               lightshowon(m_client);
            }
        });
 }
