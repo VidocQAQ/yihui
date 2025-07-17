@@ -6,6 +6,7 @@
 #include <QVsoa>
 #include "client_rpc.h"
 #include "client_subpub.h"
+#include <QTimer>
 
 namespace Ui {
 class MainWindow;
@@ -64,6 +65,8 @@ private:
     bool m_breathIncreasing = true; // 呼吸灯亮度变化方向
     // 发布/订阅客户端
     QVsoaClient *vsoaClient = nullptr;
+    QTimer *m_potSyncTimer = nullptr;
+    void syncDialWithPotValue();
 
     // 初始化灯的状态
     void initLamps();

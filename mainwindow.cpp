@@ -39,12 +39,17 @@ MainWindow::MainWindow(QWidget *parent)
        // 初始化QVsoaClient连接
        initVsoaClient();
        // 灯光秀定时器初始化
-       m_lightshowTimer->setInterval(100); // 300ms变色一次，更慢更赏心悦目
+       m_lightshowTimer->setInterval(50); // 300ms变色一次，更慢更赏心悦目
        connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
            if (m_client && m_client->isConnected()) {
                lightshowon(m_client);
            }
        });
+       // 新增：初始化电位器同步定时器
+       m_potSyncTimer = new QTimer(this);
+       m_potSyncTimer->setInterval(0); // 1秒
+       connect(m_potSyncTimer, &QTimer::timeout, this, &MainWindow::syncDialWithPotValue);
+       m_potSyncTimer->start();
 }
 
 MainWindow::~MainWindow()
@@ -283,7 +288,6 @@ void MainWindow::on_btnMotorOn_clicked()
             toggleLamp(ui->lampBlue);
             isBlueOn = true;
         }
-        
         // 启动呼吸灯
         if (!m_breathTimer) {
             m_breathTimer = new QTimer(this);
@@ -311,19 +315,38 @@ void MainWindow::on_btnMotorOn_clicked()
         m_breathTimer->start(30); // 30ms调整一次亮度
         isBreathOn = true;
         ui->textDisplay_2->append("呼吸灯已开启");
-    } else {
-        // 关闭呼吸灯
-        if (m_breathTimer) m_breathTimer->stop();
-        breathoff(m_client);
-        isBreathOn = false;
-        ui->textDisplay_2->append("呼吸灯已关闭");
     }
 }
 
 void MainWindow::on_btnMotorOff_clicked()
 {
     cleartext1();
-    ui->textDisplay_2->append("电机：关闭");
+    // 关闭呼吸灯时，先改变UI上四个灯的颜色
+    if (isRedOn) {
+        toggleLamp(ui->lampRed);
+        isRedOn = false;
+        redmonooff(m_client);
+    }
+    if (isYellowOn) {
+        toggleLamp(ui->lampYellow);
+        isYellowOn = false;
+        yellowmonooff(m_client);
+    }
+    if (isGreenOn) {
+        toggleLamp(ui->lampGreen);
+        isGreenOn = false;
+        greenmonooff(m_client);
+    }
+    if (isBlueOn) {
+        toggleLamp(ui->lampBlue);
+        isBlueOn = false;
+        bluemonooff(m_client);
+    }
+    // 关闭呼吸灯
+    if (m_breathTimer) m_breathTimer->stop();
+    breathoff(m_client);
+    isBreathOn = false;
+    ui->textDisplay_2->append("呼吸灯已关闭");
 }
 
 void MainWindow::on_btnPwmRainbow_clicked()
@@ -452,6 +475,14 @@ void MainWindow::displaySensorStatus()
     }
     else {
         ui->textDisplay_2->append("未订阅任何传感器数据");
+    }
+}
+
+void MainWindow::syncDialWithPotValue()
+{
+    extern int latestPotValueC;
+    if (ui->dialAdjust->value() != latestPotValueC) {
+        ui->dialAdjust->setValue(latestPotValueC);
     }
 }
 

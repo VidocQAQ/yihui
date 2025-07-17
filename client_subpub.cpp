@@ -38,7 +38,7 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
             }
         }
         else if(url == "/adc/data"){
-            QString param = payload.param();
+            QString param=payload.param();
             QJsonParseError parseError;
             QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
             if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
@@ -46,9 +46,14 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
                 QJsonObject photosensitive = obj.value("photosensitive").toObject();
                 int valuec0 = photosensitive.value("valuec0").toInt();
                 latestADC = QString("brig : %1").arg(valuec0);
+                // 新增：解析potentiometer.valuec
+                QJsonObject potentiometer = obj.value("potentiometer").toObject();
+                int valuec = potentiometer.value("valuec").toInt();
+                latestPotValueC = valuec;
                 if(hasADC && !hasDHT11 && !hasUSS){
                     displaytext(clientconst, latestADC);
                     qDebug() << "ADC :" << valuec0;
+
                 }
             }
         else{

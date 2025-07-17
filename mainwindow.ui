@@ -66,7 +66,6 @@ QPushButton {
     padding: 8px 12px;
     font-weight: 500;
     min-height: 30px;
-    transition: all 0.3s;
 }
 
 QPushButton:hover {
@@ -130,7 +129,6 @@ QDial::chunk {
 QLabel#lampRed, QLabel#lampYellow, QLabel#lampGreen, QLabel#lampBlue {
     border-radius: 15px;
     border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 0 8px rgba(255, 255, 255, 0.2);
 }
 
 #lampRed { background-color: rgba(230, 57, 70, 0.3); }
@@ -139,10 +137,10 @@ QLabel#lampRed, QLabel#lampYellow, QLabel#lampGreen, QLabel#lampBlue {
 #lampBlue { background-color: rgba(0, 150, 255, 0.3); }
 
 /* 状态指示灯激活状态 */
-#lampRed.active { background-color: #e63946; box-shadow: 0 0 15px #e63946; }
-#lampYellow.active { background-color: #ffb81c; box-shadow: 0 0 15px #ffb81c; }
-#lampGreen.active { background-color: #38b000; box-shadow: 0 0 15px #38b000; }
-#lampBlue.active { background-color: #0096ff; box-shadow: 0 0 15px #0096ff; }
+#lampRed.active { background-color: #e63946; }
+#lampYellow.active { background-color: #ffb81c; }
+#lampGreen.active { background-color: #38b000; }
+#lampBlue.active { background-color: #0096ff; }
 
 /* 分隔线样式 */
 QFrame#divider {
@@ -223,7 +221,7 @@ QFrame#divider {
      <item>
       <widget class="QPushButton" name="btnUltrasonic">
        <property name="text">
-        <string>开启超声波</string>
+        <string>超声波传感器</string>
        </property>
        <property name="icon">
         <iconset>
@@ -240,7 +238,7 @@ QFrame#divider {
      <item>
       <widget class="QPushButton" name="btnDht11">
        <property name="text">
-        <string>开启DHT11</string>
+        <string>温湿度传感器</string>
        </property>
        <property name="icon">
         <iconset>
@@ -302,7 +300,7 @@ QFrame#divider {
       <item>
        <widget class="QLabel" name="label">
         <property name="text">
-         <string>参数调节旋钮</string>
+         <string>电位器</string>
         </property>
         <property name="alignment">
          <set>Qt::AlignCenter</set>

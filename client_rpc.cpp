@@ -13,6 +13,7 @@ QString latestADC;
 bool hasDHT11 = true;
 bool hasUSS = true;
 bool hasADC = true;
+int latestPotValueC = 0;
 
 void onConnected(bool ok, QString info)//处理连接成功或者失败的回调
 {
