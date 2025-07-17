@@ -188,16 +188,32 @@ void bluemonooff(QVsoaClient *client){
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
 }
-//2.呼吸灯，红色为例
-void breathon(QVsoaClient *client, int brightness){
-    auto invoker = new QVsoaClientRPCInvoker(client, "/ledmono/red/brightness", RPCMethod::SET);
-    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+//2.呼吸灯，控制所有灯一起呼吸
+void breathon(QVsoaClient *client, int brightness)
+{
+    auto invokerRed = new QVsoaClientRPCInvoker(client, "/ledmono/red/brightness", RPCMethod::SET);
+    QObject::connect(invokerRed, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invokerRed, _1, _2));
+    QVariantMap paramRed = {{"brightness", brightness}};
+    QVsoaPayload payloadRed(QString::fromUtf8(QJsonDocument::fromVariant(paramRed).toJson()), {});
+    invokerRed->call(payloadRed);
 
-    QVariantMap param = {
-        {"brightness", brightness}
-    };
-    QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
-    invoker->call(payload);
+    auto invokerYellow = new QVsoaClientRPCInvoker(client, "/ledmono/yellow/brightness", RPCMethod::SET);
+    QObject::connect(invokerYellow, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invokerYellow, _1, _2));
+    QVariantMap paramYellow = {{"brightness", brightness}};
+    QVsoaPayload payloadYellow(QString::fromUtf8(QJsonDocument::fromVariant(paramYellow).toJson()), {});
+    invokerYellow->call(payloadYellow);
+
+    auto invokerGreen = new QVsoaClientRPCInvoker(client, "/ledmono/green/brightness", RPCMethod::SET);
+    QObject::connect(invokerGreen, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invokerGreen, _1, _2));
+    QVariantMap paramGreen = {{"brightness", brightness}};
+    QVsoaPayload payloadGreen(QString::fromUtf8(QJsonDocument::fromVariant(paramGreen).toJson()), {});
+    invokerGreen->call(payloadGreen);
+
+    auto invokerBlue = new QVsoaClientRPCInvoker(client, "/ledmono/blue/brightness", RPCMethod::SET);
+    QObject::connect(invokerBlue, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invokerBlue, _1, _2));
+    QVariantMap paramBlue = {{"brightness", brightness}};
+    QVsoaPayload payloadBlue(QString::fromUtf8(QJsonDocument::fromVariant(paramBlue).toJson()), {});
+    invokerBlue->call(payloadBlue);
 }
 void breathoff(QVsoaClient *client){
     auto invoker = new QVsoaClientRPCInvoker(client, "/ledmono/off", RPCMethod::SET);

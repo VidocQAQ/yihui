@@ -39,7 +39,7 @@ MainWindow::MainWindow(QWidget *parent)
        // 初始化QVsoaClient连接
        initVsoaClient();
        // 灯光秀定时器初始化
-       m_lightshowTimer->setInterval(5); // 5ms变色一次，可根据需要调整
+       m_lightshowTimer->setInterval(1); // 5ms变色一次，可根据需要调整
        connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
            if (m_client && m_client->isConnected()) {
                lightshowon(m_client, m_lightshowLedIndex);
@@ -256,7 +256,59 @@ void MainWindow::on_btnBuzzerSongon_clicked()
 void MainWindow::on_btnMotorOn_clicked()
 {
     cleartext1();
-    ui->textDisplay_2->append("电机：开启");
+    if (!isBreathOn) {
+        // 启动呼吸灯时，先改变UI上四个灯的颜色
+        if (!isRedOn) {
+            toggleLamp(ui->lampRed);
+            isRedOn = true;
+        }
+        if (!isYellowOn) {
+            toggleLamp(ui->lampYellow);
+            isYellowOn = true;
+        }
+        if (!isGreenOn) {
+            toggleLamp(ui->lampGreen);
+            isGreenOn = true;
+        }
+        if (!isBlueOn) {
+            toggleLamp(ui->lampBlue);
+            isBlueOn = true;
+        }
+        
+        // 启动呼吸灯
+        if (!m_breathTimer) {
+            m_breathTimer = new QTimer(this);
+            connect(m_breathTimer, &QTimer::timeout, this, [this]() {
+                if (!m_client || !m_client->isConnected()) return;
+                // 调整亮度
+                if (m_breathIncreasing) {
+                    m_breathBrightness += 5;
+                    if (m_breathBrightness >= 255) {
+                        m_breathBrightness = 255;
+                        m_breathIncreasing = false;
+                    }
+                } else {
+                    m_breathBrightness -= 5;
+                    if (m_breathBrightness <= 0) {
+                        m_breathBrightness = 0;
+                        m_breathIncreasing = true;
+                    }
+                }
+                breathon(m_client, m_breathBrightness);
+            });
+        }
+        m_breathBrightness = 0;
+        m_breathIncreasing = true;
+        m_breathTimer->start(30); // 30ms调整一次亮度
+        isBreathOn = true;
+        ui->textDisplay_2->append("呼吸灯已开启");
+    } else {
+        // 关闭呼吸灯
+        if (m_breathTimer) m_breathTimer->stop();
+        breathoff(m_client);
+        isBreathOn = false;
+        ui->textDisplay_2->append("呼吸灯已关闭");
+    }
 }
 
 void MainWindow::on_btnMotorOff_clicked()

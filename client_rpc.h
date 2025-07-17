@@ -42,7 +42,7 @@ void greenmonooff(QVsoaClient *client);
 void bluemonoon(QVsoaClient *client);
 void bluemonooff(QVsoaClient *client);
 //2.呼吸灯
-void breathon(QVsoaClient *client);
+void breathon(QVsoaClient *client, int brightness);
 void breathoff(QVsoaClient *client);
 
 

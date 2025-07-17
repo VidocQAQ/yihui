@@ -57,6 +57,10 @@ private:
     bool isBuzzerSongOn = false; // 蜂鸣器唱歌开关状态
     bool isDHT11On = true;
     bool isUSSOn = true;
+    bool isBreathOn = false; // 呼吸灯开关状态
+    QTimer *m_breathTimer = nullptr; // 呼吸灯定时器
+    int m_breathBrightness = 0; // 当前呼吸灯亮度
+    bool m_breathIncreasing = true; // 呼吸灯亮度变化方向
     // 发布/订阅客户端
     QVsoaClient *vsoaClient = nullptr;
 

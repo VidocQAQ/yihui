@@ -492,13 +492,13 @@ QFrame#divider {
      <item>
       <widget class="QGroupBox" name="groupMotor">
        <property name="title">
-        <string>电机控制</string>
+        <string>呼吸灯控制</string>
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
          <widget class="QPushButton" name="btnMotorOn">
           <property name="text">
-           <string>开启电机</string>
+           <string>开启</string>
           </property>
           <property name="icon">
            <iconset>
@@ -515,7 +515,7 @@ QFrame#divider {
         <item>
          <widget class="QPushButton" name="btnMotorOff">
           <property name="text">
-           <string>关闭电机</string>
+           <string>关闭</string>
           </property>
           <property name="icon">
            <iconset>
