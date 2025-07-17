@@ -7,6 +7,7 @@
 #include "client_rpc.h"
 #include "client_subpub.h"
 #include <QTimer>
+#include <QPropertyAnimation>
 
 namespace Ui {
 class MainWindow;

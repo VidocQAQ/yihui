@@ -50,7 +50,7 @@ MainWindow::MainWindow(QWidget *parent)
        m_potSyncTimer->setInterval(0); // 1秒
        connect(m_potSyncTimer, &QTimer::timeout, this, &MainWindow::syncDialWithPotValue);
        m_potSyncTimer->start();
-}
+   }
 
 MainWindow::~MainWindow()
 {
