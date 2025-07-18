@@ -72,6 +72,11 @@ private:
     // LED状态同步定时器
     QTimer *m_ledStatusTimer = nullptr;
     
+    // 呼吸灯UI特效定时器
+    QTimer *m_breathUITimer = nullptr;
+    int m_breathUIAlpha = 255; // UI呼吸灯透明度
+    bool m_breathUIIncreasing = true; // UI呼吸灯透明度变化方向
+    
     // 初始化灯的状态
     void initLamps();
 
@@ -84,6 +89,11 @@ private:
     
     // 同步LED状态
     void syncLedStatus();
+    
+    // 呼吸灯UI特效
+    void startBreathUIEffect();
+    void stopBreathUIEffect();
+    void updateBreathUIEffect();
     
     // 测试LED状态查询
     void testLedStatusQuery();

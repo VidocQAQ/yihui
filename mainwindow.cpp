@@ -57,6 +57,11 @@ MainWindow::MainWindow(QWidget *parent)
        m_ledStatusTimer->setInterval(300); // 每0.3秒同步一次LED状态
        connect(m_ledStatusTimer, &QTimer::timeout, this, &MainWindow::syncLedStatus);
        m_ledStatusTimer->start();
+       
+       // 新增：初始化呼吸灯UI特效定时器
+       m_breathUITimer = new QTimer(this);
+       m_breathUITimer->setInterval(50); // 50ms更新一次UI呼吸效果
+       connect(m_breathUITimer, &QTimer::timeout, this, &MainWindow::updateBreathUIEffect);
    }
 
 MainWindow::~MainWindow()
@@ -77,6 +82,10 @@ MainWindow::~MainWindow()
     if (m_ledStatusTimer) {
         m_ledStatusTimer->stop();
         delete m_ledStatusTimer;
+    }
+    if (m_breathUITimer) {
+        m_breathUITimer->stop();
+        delete m_breathUITimer;
     }
     
     if (m_client) {
@@ -348,6 +357,9 @@ void MainWindow::on_btnMotorOn_clicked()
         m_breathTimer->start(30); // 30ms调整一次亮度
         isBreathOn = true;
         ui->textDisplay_2->append("呼吸灯已开启");
+        
+        // 启动UI呼吸特效
+        startBreathUIEffect();
     }
 }
 
@@ -380,6 +392,9 @@ void MainWindow::on_btnMotorOff_clicked()
     breathoff(m_client);
     isBreathOn = false;
     ui->textDisplay_2->append("呼吸灯已关闭");
+    
+    // 停止UI呼吸特效
+    stopBreathUIEffect();
 }
 
 void MainWindow::on_btnPwmRainbow_clicked()
@@ -532,6 +547,11 @@ void MainWindow::syncDialWithPotValue()
 
 void MainWindow::syncLedStatus()
 {
+    // 如果呼吸灯开启，暂停LED状态同步，避免与呼吸特效冲突
+    if (isBreathOn) {
+        return;
+    }
+    
     if (m_client && m_client->isConnected()) {
         QJsonObject status = getMonoLedStatus(m_client);
         qDebug() << "[syncLedStatus] LED Status:" << QJsonDocument(status).toJson();
@@ -550,6 +570,11 @@ void MainWindow::syncLedStatus()
 
 void MainWindow::updateLedStatusDisplay()
 {
+    // 如果呼吸灯开启，暂停LED状态更新，避免与呼吸特效冲突
+    if (isBreathOn) {
+        return;
+    }
+    
     if (m_client && m_client->isConnected()) {
         QJsonObject status = getMonoLedStatus(m_client);
         updateLedStatusDisplay(status);
@@ -558,6 +583,11 @@ void MainWindow::updateLedStatusDisplay()
 
 void MainWindow::updateLedStatusDisplay(const QJsonObject &status)
 {
+    // 如果呼吸灯开启，暂停LED状态更新，避免与呼吸特效冲突
+    if (isBreathOn) {
+        return;
+    }
+    
     qDebug() << "[updateLedStatusDisplay] status:" << QJsonDocument(status).toJson();
 
     if (!status.contains("leds") || !status["leds"].isArray()) return;
@@ -595,6 +625,59 @@ void MainWindow::updateLedStatusDisplay(const QJsonObject &status)
             ui->lampBlue->setProperty("on", isOn);
         }
     }
+}
+
+void MainWindow::startBreathUIEffect()
+{
+    // 确保所有灯都亮起，然后开始呼吸动画
+    ui->lampRed->setStyleSheet("background-color: rgba(230, 57, 70, 255); border-radius: 15px;");
+    ui->lampYellow->setStyleSheet("background-color: rgba(255, 184, 28, 255); border-radius: 15px;");
+    ui->lampGreen->setStyleSheet("background-color: rgba(56, 176, 0, 255); border-radius: 15px;");
+    ui->lampBlue->setStyleSheet("background-color: rgba(0, 150, 255, 255); border-radius: 15px;");
+    
+    m_breathUIAlpha = 255;
+    m_breathUIIncreasing = true;
+    m_breathUITimer->start();
+    qDebug() << "UI呼吸特效已启动";
+}
+
+void MainWindow::stopBreathUIEffect()
+{
+    m_breathUITimer->stop();
+    
+    // 恢复LED状态同步，并重新同步一次硬件状态
+    QTimer::singleShot(100, this, [this]() {
+        updateLedStatusDisplay();
+    });
+    
+    qDebug() << "UI呼吸特效已停止";
+}
+
+void MainWindow::updateBreathUIEffect()
+{
+    if (!isBreathOn) return;
+    
+    // 调整UI透明度
+    if (m_breathUIIncreasing) {
+        m_breathUIAlpha += 10;
+        if (m_breathUIAlpha >= 255) {
+            m_breathUIAlpha = 255;
+            m_breathUIIncreasing = false;
+        }
+    } else {
+        m_breathUIAlpha -= 10;
+        if (m_breathUIAlpha <= 100) {
+            m_breathUIAlpha = 100;
+            m_breathUIIncreasing = true;
+        }
+    }
+    
+    // 应用透明度到所有灯
+    QString alphaStr = QString::number(m_breathUIAlpha);
+    ui->lampRed->setStyleSheet(QString("background-color: rgba(230, 57, 70, %1); border-radius: 15px;").arg(alphaStr));
+    ui->lampYellow->setStyleSheet(QString("background-color: rgba(255, 184, 28, %1); border-radius: 15px;").arg(alphaStr));
+    ui->lampGreen->setStyleSheet(QString("background-color: rgba(56, 176, 0, %1); border-radius: 15px;").arg(alphaStr));
+    ui->lampBlue->setStyleSheet(QString("background-color: rgba(0, 150, 255, %1); border-radius: 15px;").arg(alphaStr));
 }
 
 
