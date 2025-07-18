@@ -569,7 +569,6 @@ void MainWindow::syncLedStatus()
     
     if (m_client && m_client->isConnected()) {
         QJsonObject status = getMonoLedStatus(m_client);
-        qDebug() << "[syncLedStatus] LED Status:" << QJsonDocument(status).toJson();
         if (!status.isEmpty()) {
             updateLedStatusDisplay(status);
         }
@@ -603,8 +602,6 @@ void MainWindow::updateLedStatusDisplay(const QJsonObject &status)
         return;
     }
     
-    qDebug() << "[updateLedStatusDisplay] status:" << QJsonDocument(status).toJson();
-
     if (!status.contains("leds") || !status["leds"].isArray()) return;
     QJsonArray leds = status["leds"].toArray();
 

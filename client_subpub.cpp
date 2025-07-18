@@ -41,7 +41,6 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
         }
         else if(url == "/adc/data"){
             QString param=payload.param();
-            qDebug()<<param;
             QJsonParseError parseError;
             QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
             if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
