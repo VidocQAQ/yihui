@@ -48,7 +48,7 @@ MainWindow::MainWindow(QWidget *parent)
        });
        // 新增：初始化电位器同步定时器
        m_potSyncTimer = new QTimer(this);
-       m_potSyncTimer->setInterval(0); // 1秒
+       m_potSyncTimer->setInterval(100); // 1秒
        connect(m_potSyncTimer, &QTimer::timeout, this, &MainWindow::syncDialWithPotValue);
        m_potSyncTimer->start();
        
@@ -503,9 +503,10 @@ void MainWindow::initVsoaClient()
     m_client->autoConnect(1000, 500);
 
     ui->textDisplay->append("正在连接VSOA服务器...");
-    m_client->subscribe("/sensor/dht11/data");
+
     m_client->subscribe("/sensor/uss/data");
     m_client->subscribe("/adc/data");
+    m_client->subscribe("/sensor/dht11/data");
     m_client->autoConsistent({"/sensor/dht11/data", "/sensor/uss/data", "/adc/data"}, 1000);
 
 }
@@ -537,6 +538,7 @@ void MainWindow::displaySensorStatus()
     }
 }
 
+
 void MainWindow::syncDialWithPotValue()
 {
     extern int latestPotValueC;
@@ -559,7 +561,6 @@ void MainWindow::syncDialWithPotValue()
     }
     ui->lampWhite->setStyleSheet(color);
 }
-
 void MainWindow::syncLedStatus()
 {
     // 如果呼吸灯开启，暂停LED状态同步，避免与呼吸特效冲突
