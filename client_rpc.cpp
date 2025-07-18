@@ -94,8 +94,7 @@ void lightshowon(QVsoaClient *client)
         color = color.toUpper();
         QVariantMap led = {
             {"id", i},
-            {"color", color},
-            {"brightness", QRandomGenerator::global()->bounded(50, 101)}
+            {"color", color}
         };
         leds.append(led);
     }
@@ -227,6 +226,47 @@ void breathoff(QVsoaClient *client){
     auto invoker = new QVsoaClientRPCInvoker(client, "/ledmono/off", RPCMethod::SET);
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
+}
+
+// 查询所有单色LED状态
+QJsonObject getMonoLedStatus(QVsoaClient *client)
+{
+    QVsoaClientSynchronizer sync(client);
+    auto [success, header] = sync.call("/ledmono/status", RPCMethod::GET, QVsoaPayload{});
+    if (success) {
+        QString payloadStr = header.payload().param();
+        QJsonParseError err;
+        QJsonDocument doc = QJsonDocument::fromJson(payloadStr.toUtf8(), &err);
+        if (err.error != QJsonParseError::NoError) {
+            qDebug() << "JSON parse error:" << err.errorString();
+            return QJsonObject();
+        }
+        return doc.object();
+    } else {
+        qDebug() << "Failed to get mono LED status";
+        return QJsonObject();
+    }
+}
+
+// 查询单个LED状态
+QJsonObject getSingleMonoLedStatus(QVsoaClient *client, const QString &color)
+{
+    QString url = QString("/ledmono/%1/status").arg(color);
+    QVsoaClientSynchronizer sync(client);
+    auto [success, header] = sync.call(url, RPCMethod::GET, QVsoaPayload{});
+    if (success) {
+        QString payloadStr = header.payload().param();
+        QJsonParseError err;
+        QJsonDocument doc = QJsonDocument::fromJson(payloadStr.toUtf8(), &err);
+        if (err.error != QJsonParseError::NoError) {
+            qDebug() << "JSON parse error:" << err.errorString();
+            return QJsonObject();
+        }
+        return doc.object();
+    } else {
+        qDebug() << "Failed to get" << color << "LED status";
+        return QJsonObject();
+    }
 }
 
 //OLED相关功能

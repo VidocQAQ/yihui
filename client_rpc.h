@@ -48,6 +48,10 @@ void bluemonooff(QVsoaClient *client);
 void breathon(QVsoaClient *client, int brightness);
 void breathoff(QVsoaClient *client);
 
+//3.查询单色LED状态
+QJsonObject getMonoLedStatus(QVsoaClient *client);
+QJsonObject getSingleMonoLedStatus(QVsoaClient *client, const QString &color);
+
 
 //OLED相关功能
 //1.显示文字

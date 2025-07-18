@@ -69,11 +69,24 @@ private:
     QTimer *m_potSyncTimer = nullptr;
     void syncDialWithPotValue();
 
+    // LED状态同步定时器
+    QTimer *m_ledStatusTimer = nullptr;
+    
     // 初始化灯的状态
     void initLamps();
 
     // 切换灯状态
     void toggleLamp(QLabel *lamp);
+    
+    // 更新LED状态显示
+    void updateLedStatusDisplay();
+    void updateLedStatusDisplay(const QJsonObject &status);
+    
+    // 同步LED状态
+    void syncLedStatus();
+    
+    // 测试LED状态查询
+    void testLedStatusQuery();
     
     // 初始化QVsoaClient连接
     void initVsoaClient();

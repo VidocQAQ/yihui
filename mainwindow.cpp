@@ -10,6 +10,7 @@
 #include <QJsonObject>
 #include <QJsonDocument>
 #include <QJsonParseError>
+#include <QJsonArray>
 // 假设 QVsoaClient/QVsoaPayload 头文件已包含
 
 constexpr char SERVER_PASSWORD[] = "123456";
@@ -50,14 +51,34 @@ MainWindow::MainWindow(QWidget *parent)
        m_potSyncTimer->setInterval(0); // 1秒
        connect(m_potSyncTimer, &QTimer::timeout, this, &MainWindow::syncDialWithPotValue);
        m_potSyncTimer->start();
+       
+       // 新增：初始化LED状态同步定时器
+       m_ledStatusTimer = new QTimer(this);
+       m_ledStatusTimer->setInterval(300); // 每0.3秒同步一次LED状态
+       connect(m_ledStatusTimer, &QTimer::timeout, this, &MainWindow::syncLedStatus);
+       m_ledStatusTimer->start();
    }
 
 MainWindow::~MainWindow()
 {
+    // 停止所有定时器
     if (m_lightshowTimer) {
         m_lightshowTimer->stop();
         delete m_lightshowTimer;
     }
+    if (m_breathTimer) {
+        m_breathTimer->stop();
+        delete m_breathTimer;
+    }
+    if (m_potSyncTimer) {
+        m_potSyncTimer->stop();
+        delete m_potSyncTimer;
+    }
+    if (m_ledStatusTimer) {
+        m_ledStatusTimer->stop();
+        delete m_ledStatusTimer;
+    }
+    
     if (m_client) {
         m_client->disconnect();
         delete m_client;
@@ -133,6 +154,9 @@ void MainWindow::on_btnRed_clicked()
         ui->textDisplay->append("红灯已关闭");
         toggleLamp(ui->lampRed);
     }
+    
+    // 延迟同步状态，确保命令执行完成
+    QTimer::singleShot(200, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
 }
 
 void MainWindow::on_btnYellow_clicked()
@@ -149,6 +173,9 @@ void MainWindow::on_btnYellow_clicked()
         ui->textDisplay->append("黄灯已关闭");
         toggleLamp(ui->lampYellow);
     }
+    
+    // 延迟同步状态，确保命令执行完成
+    QTimer::singleShot(200, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
 }
 
 void MainWindow::on_btnGreen_clicked()
@@ -165,6 +192,9 @@ void MainWindow::on_btnGreen_clicked()
         ui->textDisplay->append("绿灯已关闭");
         toggleLamp(ui->lampGreen);
     }
+    
+    // 延迟同步状态，确保命令执行完成
+    QTimer::singleShot(200, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
 }
 
 void MainWindow::on_btnBlue_clicked()
@@ -181,6 +211,9 @@ void MainWindow::on_btnBlue_clicked()
         ui->textDisplay->append("蓝灯已关闭");
         toggleLamp(ui->lampBlue);
     }
+    
+    // 延迟同步状态，确保命令执行完成
+    QTimer::singleShot(200, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
 }
 
 void MainWindow::on_btnBrightnessSensor_clicked()
@@ -395,9 +428,16 @@ void MainWindow::on_btnPwmLightshow_clicked()
         m_lightshowOn = true;
     } else {
         ui->textDisplay->append("多色灯：lightshow模式关闭");
+        // 彻底停止定时器
         m_lightshowTimer->stop();
         if (m_client && m_client->isConnected()) {
+            // 连续两次发送关灯命令，确保可靠
             lightshowoff(m_client);
+            QTimer::singleShot(200, this, [this]() {
+                lightshowoff(m_client);
+                // 关灯后同步一次LED状态到UI
+                updateLedStatusDisplay();
+            });
             ui->textDisplay->append("已发送关灯命令到服务器");
         }
         m_lightshowOn = false;
@@ -430,6 +470,10 @@ void MainWindow::initVsoaClient()
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
+    QObject::connect(m_client, &QVsoaClient::connected, [this]() {
+        // 连接成功后延迟同步LED状态
+        QTimer::singleShot(500, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
+    });
     QObject::connect(m_client, &QVsoaClient::message, this,
         [=](QString url, QVsoaPayload payload){
             onMessage(m_client, url, payload);displaySensorStatus();
@@ -483,6 +527,73 @@ void MainWindow::syncDialWithPotValue()
     extern int latestPotValueC;
     if (ui->dialAdjust->value() != latestPotValueC) {
         ui->dialAdjust->setValue(latestPotValueC);
+    }
+}
+
+void MainWindow::syncLedStatus()
+{
+    if (m_client && m_client->isConnected()) {
+        QJsonObject status = getMonoLedStatus(m_client);
+        qDebug() << "[syncLedStatus] LED Status:" << QJsonDocument(status).toJson();
+        if (!status.isEmpty()) {
+            updateLedStatusDisplay(status);
+        }
+    } else {
+        qDebug() << "[syncLedStatus] Client not connected, skipping LED status sync";
+        // 断开时将所有灯置灰
+        ui->lampRed->setStyleSheet("background-color: #808080; border-radius: 15px;");
+        ui->lampYellow->setStyleSheet("background-color: #808080; border-radius: 15px;");
+        ui->lampGreen->setStyleSheet("background-color: #808080; border-radius: 15px;");
+        ui->lampBlue->setStyleSheet("background-color: #808080; border-radius: 15px;");
+    }
+}
+
+void MainWindow::updateLedStatusDisplay()
+{
+    if (m_client && m_client->isConnected()) {
+        QJsonObject status = getMonoLedStatus(m_client);
+        updateLedStatusDisplay(status);
+    }
+}
+
+void MainWindow::updateLedStatusDisplay(const QJsonObject &status)
+{
+    qDebug() << "[updateLedStatusDisplay] status:" << QJsonDocument(status).toJson();
+
+    if (!status.contains("leds") || !status["leds"].isArray()) return;
+    QJsonArray leds = status["leds"].toArray();
+
+    for (const QJsonValue &ledVal : leds) {
+        QJsonObject led = ledVal.toObject();
+        QString name = led["name"].toString();
+        QString state = led["state"].toString();
+        bool isOn = (state == "on");
+
+        if (name == "red") {
+            isRedOn = isOn;
+            ui->lampRed->setStyleSheet(isOn
+                ? "background-color: #e63946; border-radius: 15px;"
+                : "background-color: #808080; border-radius: 15px;");
+            ui->lampRed->setProperty("on", isOn);
+        } else if (name == "yellow") {
+            isYellowOn = isOn;
+            ui->lampYellow->setStyleSheet(isOn
+                ? "background-color: #ffb81c; border-radius: 15px;"
+                : "background-color: #808080; border-radius: 15px;");
+            ui->lampYellow->setProperty("on", isOn);
+        } else if (name == "green") {
+            isGreenOn = isOn;
+            ui->lampGreen->setStyleSheet(isOn
+                ? "background-color: #38b000; border-radius: 15px;"
+                : "background-color: #808080; border-radius: 15px;");
+            ui->lampGreen->setProperty("on", isOn);
+        } else if (name == "blue") {
+            isBlueOn = isOn;
+            ui->lampBlue->setStyleSheet(isOn
+                ? "background-color: #0096ff; border-radius: 15px;"
+                : "background-color: #808080; border-radius: 15px;");
+            ui->lampBlue->setProperty("on", isOn);
+        }
     }
 }
 
