@@ -7,6 +7,8 @@
 #include <QJsonValue>
 #include <QJsonParseError>
 
+int latestPotDacBrightnessPercent = 100;
+
 void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload){
      if(url == "/sensor/dht11/data"){
             QString param = payload.param();
@@ -39,6 +41,7 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
         }
         else if(url == "/adc/data"){
             QString param=payload.param();
+            qDebug()<<param;
             QJsonParseError parseError;
             QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
             if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
@@ -50,6 +53,9 @@ void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload
                 QJsonObject potentiometer = obj.value("potentiometer").toObject();
                 int valuec = potentiometer.value("valuec").toInt();
                 latestPotValueC = valuec;
+                // 修正：从obj获取dac_brightness_percent
+                int dac_brightness_percent = obj.value("dac_brightness_percent").toInt();
+                latestPotDacBrightnessPercent = dac_brightness_percent;
                 if(hasADC && !hasDHT11 && !hasUSS){
                     displaytext(clientconst, latestADC);
                     qDebug() << "ADC :" << valuec0;

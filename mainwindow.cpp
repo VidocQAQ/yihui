@@ -543,6 +543,21 @@ void MainWindow::syncDialWithPotValue()
     if (ui->dialAdjust->value() != latestPotValueC) {
         ui->dialAdjust->setValue(latestPotValueC);
     }
+    // 新增：同步白灯亮度
+    extern int latestPotDacBrightnessPercent; // 需在client_subpub.cpp中定义并赋值
+    int percent = latestPotDacBrightnessPercent;
+    percent = qBound(0, percent, 100); // 限制在0-100
+    QString color;
+    if (percent < 50) {
+        // 低亮度时用灰色，亮度越低越深
+        int gray = 180 + (75 * percent) / 50; // 180~255
+        color = QString("background-color: rgb(%1,%1,%1); border-radius: 15px;").arg(gray);
+    } else {
+        // 高亮度时用白色，alpha越高越亮
+        int alpha = 100 + (155 * (percent - 50)) / 50; // 100~255
+        color = QString("background-color: rgba(255,255,255,%1); border-radius: 15px;").arg(alpha);
+    }
+    ui->lampWhite->setStyleSheet(color);
 }
 
 void MainWindow::syncLedStatus()

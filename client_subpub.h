@@ -15,3 +15,5 @@ void USSoff(QVsoaClient *client);
 
 void ADCon(QVsoaClient *client);
 void ADCoff(QVsoaClient *client);
+
+extern int latestPotDacBrightnessPercent;

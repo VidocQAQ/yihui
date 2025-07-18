@@ -336,6 +336,25 @@ QFrame#divider {
          </spacer>
         </item>
         <item>
+         <widget class="QLabel" name="lampWhite">
+          <property name="minimumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="maximumSize">
+           <size>
+            <width>30</width>
+            <height>30</height>
+           </size>
+          </property>
+          <property name="styleSheet">
+           <string notr="true">background-color: rgba(255,255,255,0.3); border-radius: 15px;</string>
+          </property>
+         </widget>
+        </item>
+        <item>
          <widget class="QLabel" name="lampRed">
           <property name="minimumSize">
            <size>
