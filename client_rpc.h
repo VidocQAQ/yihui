@@ -16,6 +16,10 @@ extern bool hasDHT11;
 extern bool hasUSS;
 extern bool hasADC;
 extern int latestPotValueC;
+extern QString pDHT11temp;
+extern QString pDHT11humi;
+extern QString pUSS;
+extern QString pADC;
 
 // 函数声明
 void onConnected(bool ok, QString info);

@@ -14,6 +14,11 @@ bool hasDHT11 = true;
 bool hasUSS = true;
 bool hasADC = true;
 int latestPotValueC = 0;
+QString pDHT11temp;
+QString pDHT11humi;
+QString pUSS;
+QString pADC;
+
 
 void onConnected(bool ok, QString info)//处理连接成功或者失败的回调
 {

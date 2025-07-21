@@ -10,57 +10,78 @@
 int latestPotDacBrightnessPercent = 100;
 
 void onMessage(QVsoaClient *clientconst, QString url, const QVsoaPayload payload){
-     if(url == "/sensor/dht11/data"){
-            QString param = payload.param();
-            qDebug()<<param;
-            QJsonParseError parseError;
-            QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
-            if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
-                QJsonObject obj = doc.object();
-                double temperature = obj.value("temperature").toDouble();
-                int humidity = obj.value("humidity").toInt();
-                latestDHT11 = QString("temp : %1C\nhumi : %2%%").arg(temperature).arg(humidity);
-                if(hasDHT11&&!hasUSS&&!hasADC){
-                displaytext(clientconst, latestDHT11);
-                qDebug() << "DHT11 :" << payload.param();
-                }
+    if(url == "/sensor/dht11/data"){
+        QString param = payload.param();
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
+        if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
+
+            QJsonObject obj = doc.object();
+            if (obj.value("status").toString() == "ERROR") {
+                // 只用上一次的 latestDHT11
+
+            }else{
+            double temperature = obj.value("temperature").toDouble();
+            int humidity = obj.value("humidity").toInt();
+            if(temperature == 0 || humidity == 0){
+
+            }else{
+            latestDHT11 = QString("temp : %1C\nhumi : %2%").arg(temperature).arg(humidity);
+            pDHT11temp = QString::number(temperature);
+            pDHT11humi = QString::number(humidity);
+            if(hasDHT11&&!hasUSS&&!hasADC){
+            displaytext(clientconst, latestDHT11);
+            //qDebug() << "DHT11 :" << payload.param();
+            }
+           }
+        }
+      }
+    }
+    else if(url == "/sensor/uss/data"){
+        QString param = payload.param();
+        QJsonParseError parseError;
+        QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
+        if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
+            QJsonObject obj = doc.object();
+            if (obj.value("status").toString() == "ERROR") {
+                // 只用上一次的 latestUSS
+            }else{
+            double distance = obj.value("distance").toDouble();
+            latestUSS = QString("dist : %1cm").arg(distance);
+            pUSS = QString::number(distance);
+            if(hasUSS&&!hasDHT11&&!hasADC){
+            displaytext(clientconst, latestUSS);
+            qDebug() << "USS :" << distance;
             }
         }
-        else if(url == "/sensor/uss/data"){
-            QString param = payload.param();
-            QJsonParseError parseError;
-            QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
-            if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
-                QJsonObject obj = doc.object();
-                double distance = obj.value("distance").toDouble();
-                latestUSS = QString("dist : %1cm").arg(distance);
-                if(hasUSS&&!hasDHT11&&!hasADC){
-                displaytext(clientconst, latestUSS);
-                qDebug() << "USS :" << distance;
-                }
-            }
         }
+    }
         else if(url == "/adc/data"){
             QString param=payload.param();
             QJsonParseError parseError;
             QJsonDocument doc = QJsonDocument::fromJson(param.toUtf8(), &parseError);
             if (parseError.error == QJsonParseError::NoError && doc.isObject()) {
                 QJsonObject obj = doc.object();
+                if (obj.value("status").toString() == "ERROR") {
+                    // 只用上一次的 latestADC
+                }else{  
                 QJsonObject photosensitive = obj.value("photosensitive").toObject();
                 int valuec0 = photosensitive.value("valuec0").toInt();
                 latestADC = QString("brig : %1").arg(valuec0);
+                pADC = QString::number(valuec0);
                 // 新增：解析potentiometer.valuec
                 QJsonObject potentiometer = obj.value("potentiometer").toObject();
                 int valuec = potentiometer.value("valuec").toInt();
                 latestPotValueC = valuec;
+                
                 // 修正：从obj获取dac_brightness_percent
                 int dac_brightness_percent = obj.value("dac_brightness_percent").toInt();
                 latestPotDacBrightnessPercent = dac_brightness_percent;
                 if(hasADC && !hasDHT11 && !hasUSS){
                     displaytext(clientconst, latestADC);
                     qDebug() << "ADC :" << valuec0;
-
                 }
+            }
             }
         else{
             qDebug() << "ERROR" ;

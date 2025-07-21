@@ -1,5 +1,6 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
+#include <QRegularExpression>
 #include <QPushButton>
 #include <QColor>
 #include <QRandomGenerator>
@@ -31,16 +32,16 @@ MainWindow::MainWindow(QWidget *parent)
 
 
        // 设置初始文本
-       QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
+       //QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
        ui->textDisplay->setText(QString("HELLO,BAOZI!\n"));
-       ui->textDisplay_2->setText(QString("当前时间: %1\n").arg(now));
+       //ui->textDisplay_2->setText(QString("当前时间: %1\n").arg(now));
        // 初始化灯状态
        initLamps();
 
        // 初始化QVsoaClient连接
        initVsoaClient();
        // 灯光秀定时器初始化
-       m_lightshowTimer->setInterval(50); // 300ms变色一次，更慢更赏心悦目
+       m_lightshowTimer->setInterval(100); // 100ms变色一次，更慢更赏心悦目
        connect(m_lightshowTimer, &QTimer::timeout, this, [this]() {
            if (m_client && m_client->isConnected()) {
                lightshowon(m_client);
@@ -54,13 +55,13 @@ MainWindow::MainWindow(QWidget *parent)
        
        // 新增：初始化LED状态同步定时器
        m_ledStatusTimer = new QTimer(this);
-       m_ledStatusTimer->setInterval(300); // 每0.3秒同步一次LED状态
+       m_ledStatusTimer->setInterval(100); // 每0.3秒同步一次LED状态
        connect(m_ledStatusTimer, &QTimer::timeout, this, &MainWindow::syncLedStatus);
        m_ledStatusTimer->start();
        
        // 新增：初始化呼吸灯UI特效定时器
        m_breathUITimer = new QTimer(this);
-       m_breathUITimer->setInterval(50); // 50ms更新一次UI呼吸效果
+       m_breathUITimer->setInterval(100); // 50ms更新一次UI呼吸效果
        connect(m_breathUITimer, &QTimer::timeout, this, &MainWindow::updateBreathUIEffect);
    }
 
@@ -227,16 +228,17 @@ void MainWindow::on_btnBlue_clicked()
 
 void MainWindow::on_btnBrightnessSensor_clicked()
 {
-    cleartext1();
     if (m_client && m_client->isConnected()) {
         if (!isADCOn) {
             ADCon(m_client);
-            ui->textDisplay_2->append("亮度传感器：开启");
+            ui->textDisplay->append("亮度传感器：开启");
             isADCOn = true;
         } else {
             ADCoff(m_client);
-            ui->textDisplay_2->append("亮度传感器：关闭");
             isADCOn = false;
+            removeSensorValue("亮度 ：");
+            ui->textDisplay->append("亮度传感器：关闭");
+
         }
     } else {
         ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
@@ -245,16 +247,17 @@ void MainWindow::on_btnBrightnessSensor_clicked()
 
 void MainWindow::on_btnUltrasonic_clicked()
 {
-    cleartext1();
     if (m_client && m_client->isConnected()) {
         if (!isUSSOn) {
             USSon(m_client);
-            ui->textDisplay_2->append("超声波测距：开启");
+            ui->textDisplay->append("超声波测距：开启");
             isUSSOn = true;
         } else {
             USSoff(m_client);
-            ui->textDisplay_2->append("超声波测距：关闭");
             isUSSOn = false;
+            removeSensorValue("距离 ：");
+            ui->textDisplay->append("超声波测距：关闭");
+
         }
     } else {
         ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
@@ -263,16 +266,17 @@ void MainWindow::on_btnUltrasonic_clicked()
 
 void MainWindow::on_btnDht11_clicked()
 {
-    cleartext1();
     if (m_client && m_client->isConnected()) {
         if (!isDHT11On) {
             DHT11on(m_client);
-            ui->textDisplay_2->append("温湿度传感器：开启");
+            ui->textDisplay->append("温湿度传感器：开启");
              isDHT11On = true;
         } else {
             DHT11off(m_client);
-            ui->textDisplay_2->append("温湿度传感器：关闭");
             isDHT11On = false;
+            removeSensorValue("温度 ：");
+            removeSensorValue("湿度 ：");
+            ui->textDisplay->append("温湿度传感器：关闭");
         }
     } else {
         ui->textDisplay->append("错误：VSOA客户端未连接，无法发送命令");
@@ -282,36 +286,36 @@ void MainWindow::on_btnDht11_clicked()
 
 void MainWindow::on_btnBuzzerOn_clicked()
 {
-    cleartext1();
+    cleartext();
     if (!isBuzzerOn) {
         buzzeron(m_client);
         isBuzzerOn = true;
-        ui->textDisplay_2->append("蜂鸣器已开启");
+        ui->textDisplay->append("蜂鸣器已开启");
     } else {
         buzzeroff(m_client);
         isBuzzerOn = false;
-        ui->textDisplay_2->append("蜂鸣器已关闭");
+        ui->textDisplay->append("蜂鸣器已关闭");
     }
 }
 
 void MainWindow::on_btnBuzzerSongon_clicked()
 {
-    cleartext1();
+    cleartext();
     if (!isBuzzerSongOn) {
         buzzersongon(m_client);
         isBuzzerSongOn = true;
-        ui->textDisplay_2->append("蜂鸣器唱歌已开始");
+        ui->textDisplay->append("蜂鸣器唱歌已开始");
     } else {
         buzzersongoff(m_client);
         isBuzzerSongOn = false;
-        ui->textDisplay_2->append("蜂鸣器唱歌已停止");
+        ui->textDisplay->append("蜂鸣器唱歌已停止");
     }
 }
 
 
 void MainWindow::on_btnMotorOn_clicked()
 {
-    cleartext1();
+    cleartext();
     if (!isBreathOn) {
         // 启动呼吸灯时，先改变UI上四个灯的颜色
         if (!isRedOn) {
@@ -356,7 +360,7 @@ void MainWindow::on_btnMotorOn_clicked()
         m_breathIncreasing = true;
         m_breathTimer->start(30); // 30ms调整一次亮度
         isBreathOn = true;
-        ui->textDisplay_2->append("呼吸灯已开启");
+        ui->textDisplay->append("呼吸灯已开启");
         
         // 启动UI呼吸特效
         startBreathUIEffect();
@@ -365,7 +369,7 @@ void MainWindow::on_btnMotorOn_clicked()
 
 void MainWindow::on_btnMotorOff_clicked()
 {
-    cleartext1();
+    cleartext();
     // 关闭呼吸灯时，先改变UI上四个灯的颜色
     if (isRedOn) {
         toggleLamp(ui->lampRed);
@@ -391,7 +395,7 @@ void MainWindow::on_btnMotorOff_clicked()
     if (m_breathTimer) m_breathTimer->stop();
     breathoff(m_client);
     isBreathOn = false;
-    ui->textDisplay_2->append("呼吸灯已关闭");
+    ui->textDisplay->append("呼吸灯已关闭");
     
     // 停止UI呼吸特效
     stopBreathUIEffect();
@@ -484,7 +488,7 @@ void MainWindow::initVsoaClient()
     // 连接信号槽
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
-    QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
+    //QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
     QObject::connect(m_client, &QVsoaClient::connected, [this]() {
         // 连接成功后延迟同步LED状态
         QTimer::singleShot(500, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
@@ -496,8 +500,7 @@ void MainWindow::initVsoaClient()
     
 
     // 连接到服务器（需要根据实际情况修改服务器地址和端口）
-    //m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
-    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);//测试
+    m_client->connect2server("vsoa://127.0.0.1:5600", SERVER_PASSWORD);
 
     // 设置自动重连
     m_client->autoConnect(1000, 500);
@@ -513,25 +516,35 @@ void MainWindow::initVsoaClient()
 
 void MainWindow::displaySensorStatus()
 {
-     // 根据全局标志输出对应信息
-     if (hasDHT11 && !hasUSS && !hasADC) {
-        ui->textDisplay_2->append(latestDHT11);
+    QString temp = pDHT11temp+" C";
+    QString humi = pDHT11humi+" %";
+    QString dist = pUSS+" cm";
+    QString brig = pADC+" lux";
+    
+    // 根据全局标志输出对应信息
+    if (hasDHT11 && !hasUSS && !hasADC) {
+        updateSensorValue("温度 ：", temp );
+        updateSensorValue("湿度 ：", humi);
     } else if (hasUSS && !hasDHT11 && !hasADC) {
-        ui->textDisplay_2->append(latestUSS);
+        updateSensorValue("距离 ：", dist);
     } else if (hasADC && !hasDHT11 && !hasUSS) {
-        ui->textDisplay_2->append(latestADC);
+        updateSensorValue("亮度 ：", brig);
     } else if (hasDHT11 && hasUSS && !hasADC) {
-        QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestUSS);
-        ui->textDisplay_2->append(combined);
+        updateSensorValue("温度 ：", temp );
+        updateSensorValue("湿度 ：", humi);
+        updateSensorValue("距离 ：", dist);
     } else if (hasDHT11 && hasADC && !hasUSS) {
-        QString combined = QString("%1\n%2").arg(latestDHT11).arg(latestADC);
-        ui->textDisplay_2->append(combined);
+        updateSensorValue("温度 ：", temp );
+        updateSensorValue("湿度 ：", humi);
+        updateSensorValue("亮度 ：", brig);
     } else if (hasUSS && hasADC && !hasDHT11) {
-        QString combined = QString("%1\n%2").arg(latestUSS).arg(latestADC);
-        ui->textDisplay_2->append(combined);
+        updateSensorValue("距离 ：", dist);
+        updateSensorValue("亮度 ：", brig);
     } else if (hasDHT11 && hasUSS && hasADC) {
-        QString combined = QString("%1\n%2\n%3").arg(latestDHT11).arg(latestUSS).arg(latestADC);
-        ui->textDisplay_2->append(combined);
+        updateSensorValue("温度 ：", temp );
+        updateSensorValue("湿度 ：", humi);
+        updateSensorValue("距离 ：", dist);
+        updateSensorValue("亮度 ：", brig);
     }
     else {
         ui->textDisplay_2->append("未订阅任何传感器数据");
@@ -539,10 +552,40 @@ void MainWindow::displaySensorStatus()
 }
 
 
+void MainWindow::removeSensorValue(const QString& key)
+{
+    QString text = ui->textDisplay_2->toPlainText();
+    // 匹配以 key 开头的整行，兼容 Windows 和 Unix 换行，启用多行模式
+    QRegularExpression re(QString("^%1.*\\r?\\n?").arg(QRegularExpression::escape(key)), QRegularExpression::MultilineOption);
+    QRegularExpressionMatch match = re.match(text);
+    if (match.hasMatch()) {
+        text.remove(match.capturedStart(), match.capturedLength());
+    }
+    ui->textDisplay_2->setText(text.trimmed());
+    
+}
+
+void MainWindow::updateSensorValue(const QString& key, const QString& value)
+{
+    QString text = ui->textDisplay_2->toPlainText();
+    // 匹配 key: 任意内容
+    QRegularExpression re(QString("%1[^\n]*").arg(key));
+    QString valueStr = QString("%1%2").arg(key).arg(value);
+    if (re.match(text).hasMatch()) {
+        text.replace(re, valueStr);
+    } else {
+        if (!text.isEmpty() && !text.endsWith('\n'))
+            text += '\n';
+        text += valueStr;
+    }
+    ui->textDisplay_2->setText(text);
+}
+
+
 void MainWindow::syncDialWithPotValue()
 {
     extern int latestPotValueC;
-    if (ui->dialAdjust->value() != latestPotValueC) {
+    if (qAbs(ui->dialAdjust->value() - latestPotValueC) > 1) {
         ui->dialAdjust->setValue(latestPotValueC);
     }
     // 新增：同步白灯亮度

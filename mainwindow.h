@@ -21,6 +21,8 @@ public:
     explicit MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
     void displaySensorStatus();
+    void removeSensorValue(const QString& key);
+    void updateSensorValue(const QString& key, const QString& value);
 private slots:
     void cleartext1();
     void cleartext();
