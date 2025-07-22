@@ -8,6 +8,7 @@
 #include "client_subpub.h"
 #include <QTimer>
 #include <QPropertyAnimation>
+#include <QMap>
 
 namespace Ui {
 class MainWindow;
@@ -102,6 +103,9 @@ private:
     
     // 初始化QVsoaClient连接
     void initVsoaClient();
+
+    QMap<QString, bool> buttonToggleStates; // 记录按钮开关状态
+    void toggleButtonColor(const QString& btnName, bool isOn);
 };
 
 #endif // MAINWINDOW_H

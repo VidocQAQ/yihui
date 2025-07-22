@@ -38,7 +38,7 @@ void onDisconnected()//处理连接断开的回调
 void onReplay(QVsoaClientRPCInvoker *invoker, const QVsoaHeader header, const QVsoaPayload payload)
 {//处理返回信息
     if (header.status() == StatusCode::SUCCESS) {//status==success表示响应成功
-        qDebug() << "reply:" << payload.param();
+        //qDebug() << "reply:" << payload.param();
         //输出信息，也可以添加其他操作
 
     } else {

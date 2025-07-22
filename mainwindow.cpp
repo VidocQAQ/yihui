@@ -249,6 +249,8 @@ void MainWindow::on_btnBlue_clicked()
 
 void MainWindow::on_btnBrightnessSensor_clicked()
 {
+    buttonToggleStates["btnBrightnessSensor"] = !buttonToggleStates.value("btnBrightnessSensor", false);
+    toggleButtonColor("btnBrightnessSensor", buttonToggleStates["btnBrightnessSensor"]);
     if (m_client && m_client->isConnected()) {
         if (!isADCOn) {
             ADCon(m_client);
@@ -268,6 +270,8 @@ void MainWindow::on_btnBrightnessSensor_clicked()
 
 void MainWindow::on_btnUltrasonic_clicked()
 {
+    buttonToggleStates["btnUltrasonic"] = !buttonToggleStates.value("btnUltrasonic", false);
+    toggleButtonColor("btnUltrasonic", buttonToggleStates["btnUltrasonic"]);
     if (m_client && m_client->isConnected()) {
         if (!isUSSOn) {
             USSon(m_client);
@@ -287,6 +291,8 @@ void MainWindow::on_btnUltrasonic_clicked()
 
 void MainWindow::on_btnDht11_clicked()
 {
+    buttonToggleStates["btnDht11"] = !buttonToggleStates.value("btnDht11", false);
+    toggleButtonColor("btnDht11", buttonToggleStates["btnDht11"]);
     if (m_client && m_client->isConnected()) {
         if (!isDHT11On) {
             DHT11on(m_client);
@@ -308,6 +314,8 @@ void MainWindow::on_btnDht11_clicked()
 void MainWindow::on_btnBuzzerOn_clicked()
 {
     cleartext();
+    buttonToggleStates["btnBuzzerOn"] = !buttonToggleStates.value("btnBuzzerOn", false);
+    toggleButtonColor("btnBuzzerOn", buttonToggleStates["btnBuzzerOn"]);
     if (!isBuzzerOn) {
         buzzeron(m_client);
         isBuzzerOn = true;
@@ -322,6 +330,8 @@ void MainWindow::on_btnBuzzerOn_clicked()
 void MainWindow::on_btnBuzzerSongon_clicked()
 {
     cleartext();
+    buttonToggleStates["btnBuzzerSongon"] = !buttonToggleStates.value("btnBuzzerSongon", false);
+    toggleButtonColor("btnBuzzerSongon", buttonToggleStates["btnBuzzerSongon"]);
     if (!isBuzzerSongOn) {
         buzzersongon(m_client);
         isBuzzerSongOn = true;
@@ -425,6 +435,8 @@ void MainWindow::on_btnMotorOff_clicked()
 void MainWindow::on_btnPwmRainbow_clicked()
 {
     cleartext();
+    buttonToggleStates["btnPwmRainbow"] = !buttonToggleStates.value("btnPwmRainbow", false);
+    toggleButtonColor("btnPwmRainbow", buttonToggleStates["btnPwmRainbow"]);
     m_lightshowTimer->stop();
     lightshowoff(m_client);
     if (!m_pwmRainbowOn) {
@@ -452,6 +464,8 @@ void MainWindow::on_btnPwmRainbow_clicked()
 void MainWindow::on_btnPwmLightshow_clicked()
 {
     cleartext();
+    buttonToggleStates["btnPwmLightshow"] = !buttonToggleStates.value("btnPwmLightshow", false);
+    toggleButtonColor("btnPwmLightshow", buttonToggleStates["btnPwmLightshow"]);
     if(isled_pwmOn(m_client)==1){
         rainbowoff(m_client);
     }
@@ -755,6 +769,25 @@ void MainWindow::updateBreathUIEffect()
     ui->lampYellow->setStyleSheet(QString("background-color: rgba(255, 184, 28, %1); border-radius: 15px;").arg(alphaStr));
     ui->lampGreen->setStyleSheet(QString("background-color: rgba(56, 176, 0, %1); border-radius: 15px;").arg(alphaStr));
     ui->lampBlue->setStyleSheet(QString("background-color: rgba(0, 150, 255, %1); border-radius: 15px;").arg(alphaStr));
+}
+
+void MainWindow::toggleButtonColor(const QString& btnName, bool isOn)
+{
+    QPushButton* btn = findChild<QPushButton*>(btnName);
+    if (!btn) return;
+    QString baseStyle;
+    if (btnName == "btnBuzzerOn") {
+        baseStyle = isOn ? "background-color: #e63946; color: white;" : "";
+    } else if (btnName == "btnBuzzerSongon") {
+        baseStyle = isOn ? "background-color: #ffb81c; color: black;" : "";
+    } else if (btnName == "btnPwmRainbow") {
+        baseStyle = isOn ? "background-color: #38b000; color: white;" : "";
+    } else if (btnName == "btnPwmLightshow") {
+        baseStyle = isOn ? "background-color: #0096ff; color: white;" : "";
+    } else if (btnName == "btnBrightnessSensor" || btnName == "btnUltrasonic" || btnName == "btnDht11") {
+        baseStyle = isOn ? "background-color: #888; color: white;" : "";
+    }
+    btn->setStyleSheet(baseStyle);
 }
 
 
