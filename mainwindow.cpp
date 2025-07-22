@@ -29,6 +29,11 @@ MainWindow::MainWindow(QWidget *parent)
    {
        ui->setupUi(this);
 
+    // 恢复字体为原始大小（移除小字体设置）
+    // QFont smallFont = ui->textDisplay_2->font();
+    // smallFont.setPointSize(10);
+    // ui->textDisplay_2->setFont(smallFont);
+    // ui->textDisplay->setFont(smallFont);
 
 
        // 设置初始文本
@@ -137,7 +142,7 @@ void MainWindow::toggleLamp(QLabel *lamp)
 
 void MainWindow::cleartext(){
     count++;
-    if(count==2){
+    if(count==1){
       ui->textDisplay->clear();
       count=0;
     }
@@ -153,6 +158,10 @@ void MainWindow::cleartext1(){
 void MainWindow::on_btnRed_clicked()
 {
     cleartext();
+    // 如果呼吸灯开着，先关闭呼吸灯
+    if (isBreathOn) {
+        on_btnMotorOff_clicked();
+    }
     if (!isRedOn) {
         redmonoon(m_client); // 传入 m_client
         isRedOn = true;
@@ -172,6 +181,10 @@ void MainWindow::on_btnRed_clicked()
 void MainWindow::on_btnYellow_clicked()
 {
     cleartext();
+    // 如果呼吸灯开着，先关闭呼吸灯
+    if (isBreathOn) {
+        on_btnMotorOff_clicked();
+    }
     if (!isYellowOn) {
         yellowmonoon(m_client);
         isYellowOn = true;
@@ -191,6 +204,10 @@ void MainWindow::on_btnYellow_clicked()
 void MainWindow::on_btnGreen_clicked()
 {
     cleartext();
+    // 如果呼吸灯开着，先关闭呼吸灯
+    if (isBreathOn) {
+        on_btnMotorOff_clicked();
+    }
     if (!isGreenOn) {
         greenmonoon(m_client);
         isGreenOn = true;
@@ -210,6 +227,10 @@ void MainWindow::on_btnGreen_clicked()
 void MainWindow::on_btnBlue_clicked()
 {
     cleartext();
+    // 如果呼吸灯开着，先关闭呼吸灯
+    if (isBreathOn) {
+        on_btnMotorOff_clicked();
+    }
     if (!isBlueOn) {
         bluemonoon(m_client);
         isBlueOn = true;
