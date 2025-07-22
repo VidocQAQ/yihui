@@ -435,6 +435,11 @@ void MainWindow::on_btnMotorOff_clicked()
 void MainWindow::on_btnPwmRainbow_clicked()
 {
     cleartext();
+    // 互斥高亮：如果灯光秀按钮已高亮，先恢复
+    if (buttonToggleStates.value("btnPwmLightshow", false)) {
+        buttonToggleStates["btnPwmLightshow"] = false;
+        toggleButtonColor("btnPwmLightshow", false);
+    }
     buttonToggleStates["btnPwmRainbow"] = !buttonToggleStates.value("btnPwmRainbow", false);
     toggleButtonColor("btnPwmRainbow", buttonToggleStates["btnPwmRainbow"]);
     m_lightshowTimer->stop();
@@ -464,6 +469,11 @@ void MainWindow::on_btnPwmRainbow_clicked()
 void MainWindow::on_btnPwmLightshow_clicked()
 {
     cleartext();
+    // 互斥高亮：如果彩虹灯效按钮已高亮，先恢复
+    if (buttonToggleStates.value("btnPwmRainbow", false)) {
+        buttonToggleStates["btnPwmRainbow"] = false;
+        toggleButtonColor("btnPwmRainbow", false);
+    }
     buttonToggleStates["btnPwmLightshow"] = !buttonToggleStates.value("btnPwmLightshow", false);
     toggleButtonColor("btnPwmLightshow", buttonToggleStates["btnPwmLightshow"]);
     if(isled_pwmOn(m_client)==1){
