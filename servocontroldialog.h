@@ -20,17 +20,19 @@ signals:
 
 private slots:
     void onStartClicked();
-    void onStopClicked();
     void onSetAngleChanged(int value);
     void onCloseClicked();
+    void onDirectionClicked();
 
 private:
     QPushButton* btnStart;
-    QPushButton* btnStop;
     QPushButton* btnClose;
+    QPushButton* btnDirection;
     QSlider* sliderAngle;
     QLabel* labelAngleValue;
     QLabel* labelUnit;
+    bool isRunning = false;
+    bool isForward = true;
 };
 
 #endif // SERVOCONTROLDIALOG_H 

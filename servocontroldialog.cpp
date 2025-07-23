@@ -12,14 +12,15 @@ ServoControlDialog::ServoControlDialog(QWidget* parent)
     setFixedSize(320, 180);
 
     btnStart = new QPushButton("启动", this);
-    btnStop = new QPushButton("停止", this);
     btnClose = new QPushButton("关闭", this);
+    btnDirection = new QPushButton("正转", this);
 
     sliderAngle = new QSlider(Qt::Horizontal, this);
     sliderAngle->setRange(0, 360);
     sliderAngle->setValue(90);
     sliderAngle->setTickInterval(10);
     sliderAngle->setTickPosition(QSlider::TicksBelow);
+    sliderAngle->setEnabled(false);
 
     labelAngleValue = new QLabel(QString::number(sliderAngle->value()), this);
     labelUnit = new QLabel("°", this);
@@ -32,7 +33,7 @@ ServoControlDialog::ServoControlDialog(QWidget* parent)
 
     QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->addWidget(btnStart);
-    btnLayout->addWidget(btnStop);
+    btnLayout->addWidget(btnDirection);
     btnLayout->addWidget(btnClose);
 
     QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -42,19 +43,32 @@ ServoControlDialog::ServoControlDialog(QWidget* parent)
     setLayout(mainLayout);
 
     connect(btnStart, &QPushButton::clicked, this, &ServoControlDialog::onStartClicked);
-    connect(btnStop, &QPushButton::clicked, this, &ServoControlDialog::onStopClicked);
     connect(btnClose, &QPushButton::clicked, this, &ServoControlDialog::onCloseClicked);
+    connect(btnDirection, &QPushButton::clicked, this, &ServoControlDialog::onDirectionClicked);
     connect(sliderAngle, &QSlider::valueChanged, this, &ServoControlDialog::onSetAngleChanged);
 }
 
 ServoControlDialog::~ServoControlDialog() {}
 
 void ServoControlDialog::onStartClicked() {
-    emit startServo();
+    isRunning = !isRunning;
+    if (isRunning) {
+        btnStart->setText("停止");
+        btnStart->setStyleSheet("background-color:#38b000;color:white;");
+        sliderAngle->setEnabled(true);
+        emit startServo();
+    } else {
+        btnStart->setText("启动");
+        btnStart->setStyleSheet("");
+        sliderAngle->setEnabled(false);
+        emit stopServo();
+    }
 }
 
-void ServoControlDialog::onStopClicked() {
-    emit stopServo();
+void ServoControlDialog::onDirectionClicked() {
+    isForward = !isForward;
+    btnDirection->setText(isForward ? "正转" : "反转");
+    emit setAngle(sliderAngle->value()); // 可根据需要发信号
 }
 
 void ServoControlDialog::onSetAngleChanged(int value) {
