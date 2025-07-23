@@ -12,6 +12,9 @@
 #include <QJsonDocument>
 #include <QJsonParseError>
 #include <QJsonArray>
+#include <QDialog>
+#include "motorcontroldialog.h"
+#include "servocontroldialog.h"
 // 假设 QVsoaClient/QVsoaPayload 头文件已包含
 
 constexpr char SERVER_PASSWORD[] = "123456";
@@ -68,6 +71,8 @@ MainWindow::MainWindow(QWidget *parent)
        m_breathUITimer = new QTimer(this);
        m_breathUITimer->setInterval(100); // 50ms更新一次UI呼吸效果
        connect(m_breathUITimer, &QTimer::timeout, this, &MainWindow::updateBreathUIEffect);
+       // 连接电机控制按钮
+       connect(ui->btnMotorControl, &QPushButton::clicked, this, &MainWindow::on_btnMotorControl_clicked);
    }
 
 MainWindow::~MainWindow()
@@ -798,6 +803,26 @@ void MainWindow::toggleButtonColor(const QString& btnName, bool isOn)
         baseStyle = isOn ? "background-color: #888; color: white;" : "";
     }
     btn->setStyleSheet(baseStyle);
+}
+
+void MainWindow::on_btnMotorControl_clicked()
+{
+    if (!motorControlDialog) {
+        motorControlDialog = new MotorControlDialog(this);
+    }
+    motorControlDialog->show();
+    motorControlDialog->raise();
+    motorControlDialog->activateWindow();
+}
+
+void MainWindow::on_btnServoControl_clicked()
+{
+    if (!servoControlDialog) {
+        servoControlDialog = new ServoControlDialog(this);
+    }
+    servoControlDialog->show();
+    servoControlDialog->raise();
+    servoControlDialog->activateWindow();
 }
 
 

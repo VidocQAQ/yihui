@@ -9,6 +9,10 @@
 #include <QTimer>
 #include <QPropertyAnimation>
 #include <QMap>
+#include <QDialog>
+
+class MotorControlDialog;
+class ServoControlDialog;
 
 namespace Ui {
 class MainWindow;
@@ -46,6 +50,9 @@ private slots:
     void on_dialAdjust_actionTriggered(int action);
 
     void on_btnBuzzerSongon_clicked();
+
+    void on_btnServoControl_clicked();
+    void on_btnMotorControl_clicked();
 
 
 private:
@@ -106,6 +113,9 @@ private:
 
     QMap<QString, bool> buttonToggleStates; // 记录按钮开关状态
     void toggleButtonColor(const QString& btnName, bool isOn);
+
+    MotorControlDialog* motorControlDialog = nullptr;
+    ServoControlDialog* servoControlDialog = nullptr;
 };
 
 #endif // MAINWINDOW_H

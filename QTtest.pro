@@ -12,12 +12,16 @@ SOURCES += \
     client_subpub.cpp \
     main.cpp \
     mainwindow.cpp \
-    client_rpc.cpp
+    client_rpc.cpp \
+    motorcontroldialog.cpp \
+    servocontroldialog.cpp
 
 HEADERS += \
     client_rpc.h \
     client_subpub.h \
-    mainwindow.h
+    mainwindow.h \
+    motorcontroldialog.h \
+    servocontroldialog.h
 
 FORMS += \
     mainwindow.ui

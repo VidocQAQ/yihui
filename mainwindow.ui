@@ -282,8 +282,8 @@ QFrame#divider {
      </property>
     </widget>
    </item>
-   <item row="6" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout_5">
+   <item row="6" column="0" colspan="2">
+    <layout class="QHBoxLayout" name="horizontalLayoutRainbow">
      <item>
       <widget class="QPushButton" name="btnPwmRainbow">
        <property name="text">
@@ -292,6 +292,49 @@ QFrame#divider {
        <property name="icon">
         <iconset>
          <normaloff>:/icons/rainbow.png</normaloff>:/icons/rainbow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnPwmLightshow">
+       <property name="text">
+        <string>灯光秀</string>
+       </property>
+       <property name="icon">
+        <iconset>
+         <normaloff>:/icons/lightshow.png</normaloff>:/icons/lightshow.png</iconset>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnMotorControl">
+       <property name="text">
+        <string>电机控制</string>
+       </property>
+       <property name="iconSize">
+        <size>
+         <width>24</width>
+         <height>24</height>
+        </size>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="btnServoControl">
+       <property name="text">
+        <string>舵机控制</string>
        </property>
        <property name="iconSize">
         <size>
@@ -570,23 +613,6 @@ QFrame#divider {
      </property>
      <property name="alignment">
       <set>Qt::AlignCenter</set>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="1">
-    <widget class="QPushButton" name="btnPwmLightshow">
-     <property name="text">
-      <string>灯光秀</string>
-     </property>
-     <property name="icon">
-      <iconset>
-       <normaloff>:/icons/lightshow.png</normaloff>:/icons/lightshow.png</iconset>
-     </property>
-     <property name="iconSize">
-      <size>
-       <width>24</width>
-       <height>24</height>
-      </size>
      </property>
     </widget>
    </item>
