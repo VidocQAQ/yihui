@@ -20,6 +20,8 @@ extern QString pDHT11temp;
 extern QString pDHT11humi;
 extern QString pUSS;
 extern QString pADC;
+extern int motorSpeed;
+extern QString motorDirection;
 
 // 函数声明
 void onConnected(bool ok, QString info);
@@ -36,6 +38,10 @@ void lightshowon(QVsoaClient *client);
 void lightshowoff(QVsoaClient *client);
 //3.查询状态
 int isled_pwmOn(QVsoaClient *client);
+
+// 电机相关功能
+void motoron(QVsoaClient *client);
+void motoroff(QVsoaClient *client);
 
 
 //led_mono相关功能

@@ -4,6 +4,7 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include "client_rpc.h"
 
 ServoControlDialog::ServoControlDialog(QWidget* parent)
     : QDialog(parent)
@@ -13,10 +14,9 @@ ServoControlDialog::ServoControlDialog(QWidget* parent)
 
     btnStart = new QPushButton("启动", this);
     btnClose = new QPushButton("关闭", this);
-    btnDirection = new QPushButton("正转", this);
 
     sliderAngle = new QSlider(Qt::Horizontal, this);
-    sliderAngle->setRange(0, 360);
+    sliderAngle->setRange(0, 180);
     sliderAngle->setValue(90);
     sliderAngle->setTickInterval(10);
     sliderAngle->setTickPosition(QSlider::TicksBelow);
@@ -33,7 +33,6 @@ ServoControlDialog::ServoControlDialog(QWidget* parent)
 
     QHBoxLayout* btnLayout = new QHBoxLayout;
     btnLayout->addWidget(btnStart);
-    btnLayout->addWidget(btnDirection);
     btnLayout->addWidget(btnClose);
 
     QVBoxLayout* mainLayout = new QVBoxLayout;
@@ -44,7 +43,6 @@ ServoControlDialog::ServoControlDialog(QWidget* parent)
 
     connect(btnStart, &QPushButton::clicked, this, &ServoControlDialog::onStartClicked);
     connect(btnClose, &QPushButton::clicked, this, &ServoControlDialog::onCloseClicked);
-    connect(btnDirection, &QPushButton::clicked, this, &ServoControlDialog::onDirectionClicked);
     connect(sliderAngle, &QSlider::valueChanged, this, &ServoControlDialog::onSetAngleChanged);
 }
 
@@ -56,19 +54,13 @@ void ServoControlDialog::onStartClicked() {
         btnStart->setText("停止");
         btnStart->setStyleSheet("background-color:#38b000;color:white;");
         sliderAngle->setEnabled(true);
-        emit startServo();
+        
     } else {
         btnStart->setText("启动");
         btnStart->setStyleSheet("");
         sliderAngle->setEnabled(false);
-        emit stopServo();
-    }
-}
 
-void ServoControlDialog::onDirectionClicked() {
-    isForward = !isForward;
-    btnDirection->setText(isForward ? "正转" : "反转");
-    emit setAngle(sliderAngle->value()); // 可根据需要发信号
+    }
 }
 
 void ServoControlDialog::onSetAngleChanged(int value) {

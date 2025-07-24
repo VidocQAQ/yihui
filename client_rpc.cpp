@@ -18,6 +18,8 @@ QString pDHT11temp;
 QString pDHT11humi;
 QString pUSS;
 QString pADC;
+int motorSpeed = 0;
+QString motorDirection = "CW";
 
 
 void onConnected(bool ok, QString info)//处理连接成功或者失败的回调
@@ -318,3 +320,19 @@ void buzzersongoff(QVsoaClient *client) {
     invoker->call(QVsoaPayload{});
 }
 
+//电机相关功能
+void motoron(QVsoaClient *client){
+    auto invoker = new QVsoaClientRPCInvoker(client, "/motor/on", RPCMethod::SET);
+    QVariantMap param = {
+        {"speed", motorSpeed},
+        {"direction", motorDirection}
+    };
+    QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(payload);
+}
+void motoroff(QVsoaClient *client){
+    auto invoker = new QVsoaClientRPCInvoker(client, "/motor/off", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}

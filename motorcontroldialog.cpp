@@ -4,9 +4,10 @@
 #include <QLabel>
 #include <QHBoxLayout>
 #include <QVBoxLayout>
+#include "client_rpc.h"
 
-MotorControlDialog::MotorControlDialog(QWidget* parent)
-    : QDialog(parent)
+MotorControlDialog::MotorControlDialog(QVsoaClient* client, QWidget* parent)
+    : QDialog(parent), m_client(client)
 {
     setWindowTitle("电机控制");
     setFixedSize(420, 260);
@@ -15,15 +16,15 @@ MotorControlDialog::MotorControlDialog(QWidget* parent)
     btnClose = new QPushButton("关闭", this);
     btnDirection = new QPushButton("正转", this);
     btnSpeed1 = new QPushButton("500", this);
-    btnSpeed2 = new QPushButton("1200", this);
-    btnSpeed3 = new QPushButton("2500", this);
-    btnSpeed4 = new QPushButton("4000", this);
+    btnSpeed2 = new QPushButton("1000", this);
+    btnSpeed3 = new QPushButton("1500", this);
+    btnSpeed4 = new QPushButton("2000", this);
     btnCustom = new QPushButton("自定义", this);
     btnCustom->setEnabled(false);
 
     sliderSpeed = new QSlider(Qt::Horizontal, this);
-    sliderSpeed->setRange(0, 5000);
-    sliderSpeed->setValue(1200);
+    sliderSpeed->setRange(0, 2000);
+    sliderSpeed->setValue(1000);
     sliderSpeed->setTickInterval(100);
     sliderSpeed->setTickPosition(QSlider::TicksBelow);
     sliderSpeed->setEnabled(false);
@@ -88,6 +89,7 @@ void MotorControlDialog::onStartClicked() {
         // 启动时自动切换到最低档位
         sliderSpeed->setValue(speedPresets[0]);
         labelSpeedValue->setText(QString::number(speedPresets[0]));
+        motorSpeed = speedPresets[0]; 
         currentPresetIndex = 0;
         btnSpeed1->setStyleSheet("background-color:#4cc9f0;color:white;");
         btnSpeed2->setStyleSheet("");
@@ -100,7 +102,7 @@ void MotorControlDialog::onStartClicked() {
         btnSpeed3->setEnabled(true);
         btnSpeed4->setEnabled(true);
         sliderSpeed->setEnabled(true);
-        emit startMotor();
+        motoron(m_client);
     } else {
         btnStart->setText("启动");
         btnStart->setStyleSheet("");
@@ -119,13 +121,13 @@ void MotorControlDialog::onStartClicked() {
         btnSpeed3->setEnabled(false);
         btnSpeed4->setEnabled(false);
         sliderSpeed->setEnabled(false);
-        emit stopMotor();
+        motoroff(m_client);
     }
 }
 
 void MotorControlDialog::onSetSpeedChanged(int value) {
+    motorSpeed = value;
     labelSpeedValue->setText(QString::number(value));
-    emit setSpeed(value);
     // 拖动条变化时取消档位高亮
     currentPresetIndex = -1;
     btnSpeed1->setStyleSheet("");
@@ -134,6 +136,7 @@ void MotorControlDialog::onSetSpeedChanged(int value) {
     btnSpeed4->setStyleSheet("");
     // 拖动条变化高亮自定义按钮
     btnCustom->setStyleSheet("background-color:#f72585;color:white;");
+    motoron(m_client);
 }
 
 void MotorControlDialog::onCloseClicked() {
@@ -143,7 +146,13 @@ void MotorControlDialog::onCloseClicked() {
 void MotorControlDialog::onDirectionClicked() {
     isForward = !isForward;
     btnDirection->setText(isForward ? "正转" : "反转");
-    emit setDirection(isForward);
+    if(motorDirection == "CW"){
+        motorDirection = "CCW";
+        motoron(m_client);
+    }else{
+        motorDirection = "CW";
+        motoron(m_client);
+    }
 }
 
 void MotorControlDialog::onSpeedPresetClicked() {
@@ -155,6 +164,7 @@ void MotorControlDialog::onSpeedPresetClicked() {
     else if (btn == btnSpeed4) idx = 3;
     if (idx >= 0) {
         sliderSpeed->setValue(speedPresets[idx]);
+        motorSpeed = speedPresets[idx];
         currentPresetIndex = idx;
         // 高亮当前档位
         btnSpeed1->setStyleSheet(idx==0 ? "background-color:#4cc9f0;color:white;" : "");
@@ -163,5 +173,6 @@ void MotorControlDialog::onSpeedPresetClicked() {
         btnSpeed4->setStyleSheet(idx==3 ? "background-color:#4cc9f0;color:white;" : "");
         // 恢复自定义按钮原色
         btnCustom->setStyleSheet("");
+        motoron(m_client);
     }
 } 

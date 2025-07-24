@@ -2,6 +2,7 @@
 #define MOTORCONTROLDIALOG_H
 
 #include <QDialog>
+#include "client_rpc.h"
 
 class QPushButton;
 class QSlider;
@@ -10,7 +11,7 @@ class QLabel;
 class MotorControlDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit MotorControlDialog(QWidget* parent = nullptr);
+    explicit MotorControlDialog(QVsoaClient* client, QWidget* parent = nullptr);
     ~MotorControlDialog();
 
 signals:
@@ -27,6 +28,7 @@ private slots:
     void onSpeedPresetClicked();
 
 private:
+    QVsoaClient* m_client; // 新增
     QPushButton* btnStart;
     QPushButton* btnClose;
     QPushButton* btnDirection;
@@ -38,10 +40,11 @@ private:
     QSlider* sliderSpeed;
     QLabel* labelSpeedValue;
     QLabel* labelUnit;
-    int speedPresets[4] = {500, 1200, 2500, 4000};
+    int speedPresets[4] = {500, 1000, 1500, 2000};
     int currentPresetIndex = -1;
     bool isForward = true;
     bool isRunning = false;
+
 };
 
 #endif // MOTORCONTROLDIALOG_H 

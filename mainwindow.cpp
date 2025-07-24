@@ -15,7 +15,7 @@
 #include <QDialog>
 #include "motorcontroldialog.h"
 #include "servocontroldialog.h"
-// 假设 QVsoaClient/QVsoaPayload 头文件已包含
+
 
 constexpr char SERVER_PASSWORD[] = "123456";
 const QString DHT11_URL = "/sensor/dht11/data";
@@ -808,7 +808,7 @@ void MainWindow::toggleButtonColor(const QString& btnName, bool isOn)
 void MainWindow::on_btnMotorControl_clicked()
 {
     if (!motorControlDialog) {
-        motorControlDialog = new MotorControlDialog(this);
+        motorControlDialog = new MotorControlDialog(m_client, this); // 传递 m_client
     }
     motorControlDialog->show();
     motorControlDialog->raise();
@@ -818,7 +818,7 @@ void MainWindow::on_btnMotorControl_clicked()
 void MainWindow::on_btnServoControl_clicked()
 {
     if (!servoControlDialog) {
-        servoControlDialog = new ServoControlDialog(this);
+        servoControlDialog = new ServoControlDialog(this); // 传递 m_client
     }
     servoControlDialog->show();
     servoControlDialog->raise();
