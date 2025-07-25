@@ -14,14 +14,16 @@ SOURCES += \
     mainwindow.cpp \
     client_rpc.cpp \
     motorcontroldialog.cpp \
-    servocontroldialog.cpp
+    servocontroldialog.cpp \
+    servodial.cpp
 
 HEADERS += \
     client_rpc.h \
     client_subpub.h \
     mainwindow.h \
     motorcontroldialog.h \
-    servocontroldialog.h
+    servocontroldialog.h \
+    servodial.h
 
 FORMS += \
     mainwindow.ui

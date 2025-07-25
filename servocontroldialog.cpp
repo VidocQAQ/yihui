@@ -5,6 +5,7 @@
 #include <QHBoxLayout>
 #include <QVBoxLayout>
 #include "client_rpc.h"
+#include "servodial.h"
 
 ServoControlDialog::ServoControlDialog(QVsoaClient* client, QWidget* parent)
     : QDialog(parent), m_client(client)
@@ -15,19 +16,17 @@ ServoControlDialog::ServoControlDialog(QVsoaClient* client, QWidget* parent)
     btnStart = new QPushButton("启动", this);
     btnClose = new QPushButton("关闭", this);
 
-    sliderAngle = new QSlider(Qt::Horizontal, this);
-    sliderAngle->setRange(0, 180);
-    sliderAngle->setValue(90);
-    sliderAngle->setTickInterval(10);
-    sliderAngle->setTickPosition(QSlider::TicksBelow);
-    sliderAngle->setEnabled(false);
+    dialAngle = new ServoDial(this);
+    dialAngle->setRange(0, 180);
+    dialAngle->setAngle(90);
+    dialAngle->setEnabled(false);
 
-    labelAngleValue = new QLabel(QString::number(sliderAngle->value()), this);
+    labelAngleValue = new QLabel(QString::number(dialAngle->angle()), this);
     labelUnit = new QLabel("°", this);
 
     QHBoxLayout* angleLayout = new QHBoxLayout;
     angleLayout->addWidget(new QLabel("角度:", this));
-    angleLayout->addWidget(sliderAngle);
+    angleLayout->addWidget(dialAngle);
     angleLayout->addWidget(labelAngleValue);
     angleLayout->addWidget(labelUnit);
 
@@ -43,7 +42,7 @@ ServoControlDialog::ServoControlDialog(QVsoaClient* client, QWidget* parent)
 
     connect(btnStart, &QPushButton::clicked, this, &ServoControlDialog::onStartClicked);
     connect(btnClose, &QPushButton::clicked, this, &ServoControlDialog::onCloseClicked);
-    connect(sliderAngle, &QSlider::valueChanged, this, &ServoControlDialog::onSetAngleChanged);
+    connect(dialAngle, &ServoDial::angleChanged, this, &ServoControlDialog::onSetAngleChanged);
 }
 
 ServoControlDialog::~ServoControlDialog() {}
@@ -53,12 +52,12 @@ void ServoControlDialog::onStartClicked() {
     if (isRunning) {
         btnStart->setText("停止");
         btnStart->setStyleSheet("background-color:#38b000;color:white;");
-        sliderAngle->setEnabled(true);
-        servoseton(m_client, sliderAngle->value());
+        dialAngle->setEnabled(true);
+        servoseton(m_client, dialAngle->angle());
     } else {
         btnStart->setText("启动");
         btnStart->setStyleSheet("");
-        sliderAngle->setEnabled(false);
+        dialAngle->setEnabled(false);
         servooff(m_client);
     }
 }

@@ -3,6 +3,7 @@
 
 #include <QDialog>
 #include <QVsoa>
+#include "servodial.h"
 
 class QPushButton;
 class QSlider;
@@ -25,12 +26,12 @@ private slots:
     void onCloseClicked();
 
 private:
-    QVsoaClient* m_client;
     QPushButton* btnStart;
     QPushButton* btnClose;
-    QSlider* sliderAngle;
+    ServoDial* dialAngle;
     QLabel* labelAngleValue;
     QLabel* labelUnit;
+    QVsoaClient* m_client;
     bool isRunning = false;
 };
 
