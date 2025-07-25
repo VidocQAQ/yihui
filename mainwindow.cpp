@@ -15,6 +15,7 @@
 #include <QDialog>
 #include "motorcontroldialog.h"
 #include "servocontroldialog.h"
+#include "lidarcontroldialog.h"
 
 
 constexpr char SERVER_PASSWORD[] = "123456";
@@ -73,6 +74,7 @@ MainWindow::MainWindow(QWidget *parent)
        connect(m_breathUITimer, &QTimer::timeout, this, &MainWindow::updateBreathUIEffect);
        // 连接电机控制按钮
        connect(ui->btnMotorControl, &QPushButton::clicked, this, &MainWindow::on_btnMotorControl_clicked);
+       connect(ui->btnLidar, &QPushButton::clicked, this, &MainWindow::on_btnLidar_clicked);
    }
 
 MainWindow::~MainWindow()
@@ -823,6 +825,15 @@ void MainWindow::on_btnServoControl_clicked()
     servoControlDialog->show();
     servoControlDialog->raise();
     servoControlDialog->activateWindow();
+}
+
+void MainWindow::on_btnLidar_clicked() {
+    if (!lidarDialog) {
+        lidarDialog = new LidarControlDialog(this);
+    }
+    lidarDialog->show();
+    lidarDialog->raise();
+    lidarDialog->activateWindow();
 }
 
 

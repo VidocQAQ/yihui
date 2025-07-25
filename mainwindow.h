@@ -10,6 +10,7 @@
 #include <QPropertyAnimation>
 #include <QMap>
 #include <QDialog>
+#include "lidarcontroldialog.h"
 
 class MotorControlDialog;
 class ServoControlDialog;
@@ -53,6 +54,7 @@ private slots:
 
     void on_btnServoControl_clicked();
     void on_btnMotorControl_clicked();
+    void on_btnLidar_clicked();
 
 
 private:
@@ -116,6 +118,7 @@ private:
 
     MotorControlDialog* motorControlDialog = nullptr;
     ServoControlDialog* servoControlDialog = nullptr;
+    LidarControlDialog* lidarDialog = nullptr;
 };
 
 #endif // MAINWINDOW_H

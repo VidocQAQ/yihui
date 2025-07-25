@@ -15,7 +15,9 @@ SOURCES += \
     client_rpc.cpp \
     motorcontroldialog.cpp \
     servocontroldialog.cpp \
-    servodial.cpp
+    servodial.cpp \
+    lidarcontroldialog.cpp \
+    lidarpolarwidget.cpp
 
 HEADERS += \
     client_rpc.h \
@@ -23,7 +25,9 @@ HEADERS += \
     mainwindow.h \
     motorcontroldialog.h \
     servocontroldialog.h \
-    servodial.h
+    servodial.h \
+    lidarcontroldialog.h \
+    lidarpolarwidget.h
 
 FORMS += \
     mainwindow.ui
