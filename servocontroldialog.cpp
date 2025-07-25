@@ -6,8 +6,8 @@
 #include <QVBoxLayout>
 #include "client_rpc.h"
 
-ServoControlDialog::ServoControlDialog(QWidget* parent)
-    : QDialog(parent)
+ServoControlDialog::ServoControlDialog(QVsoaClient* client, QWidget* parent)
+    : QDialog(parent), m_client(client)
 {
     setWindowTitle("舵机控制");
     setFixedSize(320, 180);
@@ -54,18 +54,20 @@ void ServoControlDialog::onStartClicked() {
         btnStart->setText("停止");
         btnStart->setStyleSheet("background-color:#38b000;color:white;");
         sliderAngle->setEnabled(true);
-        
+        servoseton(m_client, sliderAngle->value());
     } else {
         btnStart->setText("启动");
         btnStart->setStyleSheet("");
         sliderAngle->setEnabled(false);
-
+        servooff(m_client);
     }
 }
 
 void ServoControlDialog::onSetAngleChanged(int value) {
     labelAngleValue->setText(QString::number(value));
-    emit setAngle(value);
+    if (isRunning) {
+        servoseton(m_client, value);
+    }
 }
 
 void ServoControlDialog::onCloseClicked() {

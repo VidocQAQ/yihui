@@ -818,7 +818,7 @@ void MainWindow::on_btnMotorControl_clicked()
 void MainWindow::on_btnServoControl_clicked()
 {
     if (!servoControlDialog) {
-        servoControlDialog = new ServoControlDialog(this); // 传递 m_client
+        servoControlDialog = new ServoControlDialog(m_client, this); // 传递 m_client
     }
     servoControlDialog->show();
     servoControlDialog->raise();

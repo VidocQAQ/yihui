@@ -75,4 +75,8 @@ void buzzeroff(QVsoaClient *client);
 void buzzersongon(QVsoaClient *client);
 void buzzersongoff(QVsoaClient *client);
 
+// 舵机相关功能
+void servoseton(QVsoaClient *client, int angle); // 设定角度
+void servooff(QVsoaClient *client);              // 关闭舵机
+
 #endif // CLIENT_RPC_H

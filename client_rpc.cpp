@@ -336,3 +336,19 @@ void motoroff(QVsoaClient *client){
     QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
     invoker->call(QVsoaPayload{});
 }
+
+void servoseton(QVsoaClient *client, int angle) {
+    auto invoker = new QVsoaClientRPCInvoker(client, "/servo/set", RPCMethod::SET);
+    QVariantMap param = {
+        {"angle", angle}
+    };
+    QVsoaPayload payload(QString::fromUtf8(QJsonDocument::fromVariant(param).toJson()), {});
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(payload);
+}
+
+void servooff(QVsoaClient *client) {
+    auto invoker = new QVsoaClientRPCInvoker(client, "/servo/off", RPCMethod::SET);
+    QObject::connect(invoker, &QVsoaClientRPCInvoker::serverReply, std::bind(onReplay, invoker, _1, _2));
+    invoker->call(QVsoaPayload{});
+}

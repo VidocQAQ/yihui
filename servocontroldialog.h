@@ -2,6 +2,7 @@
 #define SERVOCONTROLDIALOG_H
 
 #include <QDialog>
+#include <QVsoa>
 
 class QPushButton;
 class QSlider;
@@ -10,7 +11,7 @@ class QLabel;
 class ServoControlDialog : public QDialog {
     Q_OBJECT
 public:
-    explicit ServoControlDialog(QWidget* parent = nullptr);
+    explicit ServoControlDialog(QVsoaClient* client, QWidget* parent = nullptr);
     ~ServoControlDialog();
 
 signals:
@@ -24,6 +25,7 @@ private slots:
     void onCloseClicked();
 
 private:
+    QVsoaClient* m_client;
     QPushButton* btnStart;
     QPushButton* btnClose;
     QSlider* sliderAngle;
