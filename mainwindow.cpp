@@ -64,7 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
        
        // 新增：初始化LED状态同步定时器
        m_ledStatusTimer = new QTimer(this);
-       m_ledStatusTimer->setInterval(100); // 每0.3秒同步一次LED状态
+       m_ledStatusTimer->setInterval(1000000); // 每0.3秒同步一次LED状态
        connect(m_ledStatusTimer, &QTimer::timeout, this, &MainWindow::syncLedStatus);
        m_ledStatusTimer->start();
        
@@ -540,11 +540,11 @@ void MainWindow::initVsoaClient()
     // 连接信号槽
     QObject::connect(m_client, &QVsoaClient::connected, std::bind(onConnected, std::placeholders::_1, std::placeholders::_2));
     QObject::connect(m_client, &QVsoaClient::disconnected, onDisconnected);
-    //QObject::connect(m_client, &QVsoaClient::connected, std::bind(displaytext, m_client, "HELLO,BAOZI!"));
     QObject::connect(m_client, &QVsoaClient::connected, [this]() {
         // 连接成功后延迟同步LED状态
         QTimer::singleShot(500, this, static_cast<void (MainWindow::*)()>(&MainWindow::updateLedStatusDisplay));
     });
+    QObject::connect(m_client, &QVsoaClient::datagram, std::bind(onDatagram, m_client, _1, _2));
     QObject::connect(m_client, &QVsoaClient::message, this,
         [=](QString url, QVsoaPayload payload){
             onMessage(m_client, url, payload);displaySensorStatus();
@@ -829,7 +829,7 @@ void MainWindow::on_btnServoControl_clicked()
 
 void MainWindow::on_btnLidar_clicked() {
     if (!lidarDialog) {
-        lidarDialog = new LidarControlDialog(this);
+        lidarDialog = new LidarControlDialog(m_client, this);
     }
     lidarDialog->show();
     lidarDialog->raise();
