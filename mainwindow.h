@@ -6,14 +6,15 @@
 #include <QVsoa>
 #include "client_rpc.h"
 #include "client_subpub.h"
+#include "client_datagram.h"
 #include <QTimer>
 #include <QPropertyAnimation>
 #include <QMap>
 #include <QDialog>
-#include "lidarcontroldialog.h"
 
 class MotorControlDialog;
 class ServoControlDialog;
+class LidarControlDialog;
 
 namespace Ui {
 class MainWindow;

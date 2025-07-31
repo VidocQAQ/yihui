@@ -5,6 +5,8 @@
 #include <QJsonDocument>
 
 using namespace std::placeholders;
+extern int latestPotDacBrightnessPercent;
+extern QVector<QPair<double, double>> lidarPoints;
 
 void onMessage(QVsoaClient *client, const QString url, const QVsoaPayload payload);
 void onDatagram(QVsoaClient *client, const QString url, const QVsoaPayload payload);
@@ -20,7 +22,6 @@ void ADCoff(QVsoaClient *client);
 
 void LidarControlOn(QVsoaClient *client);
 void LidarControlOff(QVsoaClient *client);
-void LidarControlSet(QVsoaClient *client, const QString url, const QVsoaPayload payload);
 
-extern int latestPotDacBrightnessPercent;
-extern QVector<QPair<double, double>> lidarPoints;
+
+

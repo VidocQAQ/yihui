@@ -24,7 +24,7 @@ const QString USS_URL = "/sensor/uss/data";
 
 int count=0;
 int count1=0;
-int m_lightshowLedIndex = 1; // 新增成员变量，当前闪烁的LED编号
+int m_lightshowLedIndex = 1; //当前闪烁的LED编号
 MainWindow::MainWindow(QWidget *parent)
     : QWidget(parent)
        , ui(new Ui::MainWindow)
@@ -33,17 +33,10 @@ MainWindow::MainWindow(QWidget *parent)
    {
        ui->setupUi(this);
 
-    // 恢复字体为原始大小（移除小字体设置）
-    // QFont smallFont = ui->textDisplay_2->font();
-    // smallFont.setPointSize(10);
-    // ui->textDisplay_2->setFont(smallFont);
-    // ui->textDisplay->setFont(smallFont);
 
 
        // 设置初始文本
-       //QString now = QDateTime::currentDateTime().toString("yyyy-MM-dd hh:mm:ss");
        ui->textDisplay->setText(QString("HELLO,BAOZI!\n"));
-       //ui->textDisplay_2->setText(QString("当前时间: %1\n").arg(now));
        // 初始化灯状态
        initLamps();
 
@@ -64,13 +57,13 @@ MainWindow::MainWindow(QWidget *parent)
        
        // 新增：初始化LED状态同步定时器
        m_ledStatusTimer = new QTimer(this);
-       m_ledStatusTimer->setInterval(1000000); // 每0.3秒同步一次LED状态
+       m_ledStatusTimer->setInterval(100); // 每0.1秒同步一次LED状态
        connect(m_ledStatusTimer, &QTimer::timeout, this, &MainWindow::syncLedStatus);
        m_ledStatusTimer->start();
        
        // 新增：初始化呼吸灯UI特效定时器
        m_breathUITimer = new QTimer(this);
-       m_breathUITimer->setInterval(100); // 50ms更新一次UI呼吸效果
+       m_breathUITimer->setInterval(100); // 100ms更新一次UI呼吸效果
        connect(m_breathUITimer, &QTimer::timeout, this, &MainWindow::updateBreathUIEffect);
        // 连接电机控制按钮
        connect(ui->btnMotorControl, &QPushButton::clicked, this, &MainWindow::on_btnMotorControl_clicked);
